@@ -1,0 +1,11 @@
+{
+  "name": "GeoVoice - Balises GPS & Notes Vocales",
+  "description": "Enregistrement de points GPS et de mémos vocaux déclenchés à distance par bouton Bluetooth, conçu pour un usage en poche.",
+  "requestFramePermissions": [
+    "geolocation",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
