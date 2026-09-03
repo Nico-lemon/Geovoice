@@ -15,6 +15,8 @@ import { BluetoothConfigModal } from './components/BluetoothConfigModal';
 import { ExportModal } from './components/ExportModal';
 import { QrCodeModal } from './components/QrCodeModal';
 import { LiveRecordingBar } from './components/LiveRecordingBar';
+import { OfflineBanner } from './components/OfflineBanner';
+import { AndroidApkModal } from './components/AndroidApkModal';
 
 import { Map as MapIcon, List, Download } from 'lucide-react';
 
@@ -45,7 +47,38 @@ export default function App() {
   const [isBluetoothModalOpen, setIsBluetoothModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isQrCodeModalOpen, setIsQrCodeModalOpen] = useState(false);
+  const [isAndroidModalOpen, setIsAndroidModalOpen] = useState(false);
+  const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<any>(null);
   const [editingPoint, setEditingPoint] = useState<GpsPoint | null>(null);
+
+  // Capture de l'événement d'installation PWA Android
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredInstallPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setDeferredInstallPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallPwa = async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredInstallPrompt(null);
+    }
+  };
 
   // Configuration Bluetooth & Retours sensoriels
   const [bluetoothConfig, setBluetoothConfig] = useState<BluetoothConfig>({
@@ -266,6 +299,7 @@ export default function App() {
         onOpenBluetoothModal={() => setIsBluetoothModalOpen(true)}
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onOpenQrCodeModal={() => setIsQrCodeModalOpen(true)}
+        onOpenAndroidModal={() => setIsAndroidModalOpen(true)}
         onToggleMute={() =>
           setAudioSettings((prev) => ({ ...prev, beepsEnabled: !prev.beepsEnabled }))
         }
@@ -273,6 +307,9 @@ export default function App() {
           setAudioSettings((prev) => ({ ...prev, vibrationEnabled: !prev.vibrationEnabled }))
         }
       />
+
+      {/* Bannière d'état hors-ligne */}
+      <OfflineBanner />
 
       {/* Contenu principal */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-4 pb-28">
@@ -317,14 +354,6 @@ export default function App() {
               <List className="w-4 h-4" />
               <span>Liste des points</span>
             </button>
-          </div>
-
-          <div
-            className={`text-xs font-mono font-bold ${
-              isLight ? 'text-slate-600' : 'text-slate-400'
-            }`}
-          >
-            {currentLocation ? `GPS ±${currentLocation.accuracy.toFixed(1)}m` : 'Recherche GPS...'}
           </div>
         </div>
 
@@ -455,6 +484,14 @@ export default function App() {
       <QrCodeModal
         isOpen={isQrCodeModalOpen}
         onClose={() => setIsQrCodeModalOpen(false)}
+      />
+
+      {/* Modale Application Android & Fichier APK */}
+      <AndroidApkModal
+        isOpen={isAndroidModalOpen}
+        onClose={() => setIsAndroidModalOpen(false)}
+        deferredPrompt={deferredInstallPrompt}
+        onInstallPwa={handleInstallPwa}
       />
     </div>
   );

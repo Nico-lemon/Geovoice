@@ -237,6 +237,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
     const newTile = L.tileLayer(TILE_LAYERS[activeLayer].url, {
       attribution: TILE_LAYERS[activeLayer].attribution,
       maxZoom: 19,
+      crossOrigin: true,
     }).addTo(mapInstanceRef.current);
     tileLayerRef.current = newTile;
   }, [activeLayer]);

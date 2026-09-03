@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, Square, Bluetooth } from 'lucide-react';
+import { Mic, Square } from 'lucide-react';
 import { GpsCoordinates } from '../types';
 
 interface LiveRecordingBarProps {
@@ -86,13 +86,13 @@ export const LiveRecordingBar: React.FC<LiveRecordingBarProps> = ({
                       Prêt au balisage GPS
                     </span>
                     <span className="text-xs text-emerald-800 dark:text-emerald-300 font-bold px-2 py-0.5 bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/30 rounded-lg">
-                      Bouton BT ou Écran
+                      Prêt
                     </span>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400 truncate font-medium">
                     {lastTriggerSource
                       ? `Dernier déclic : ${lastTriggerSource}`
-                      : 'Appuyez sur le bouton Bluetooth ou sur le micro pour enregistrer un point.'}
+                      : 'Appuyez sur le micro pour enregistrer un point.'}
                   </p>
                 </div>
               )}

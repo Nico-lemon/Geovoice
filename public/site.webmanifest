@@ -2,14 +2,24 @@
   "id": "/",
   "name": "GeoVoice - Balises GPS & Notes Vocales",
   "short_name": "GeoVoice",
-  "description": "Enregistrement de points GPS et de mémos vocaux de terrain avec déclenchement Bluetooth.",
+  "description": "Enregistrement de points GPS et de mémos vocaux de terrain avec déclenchement Bluetooth et fonctionnement 100% hors-ligne.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#020617",
-  "theme_color": "#10b981",
-  "categories": ["navigation", "productivity", "utilities"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#059669",
+  "categories": [
+    "navigation",
+    "productivity",
+    "utilities",
+    "travel"
+  ],
   "lang": "fr-FR",
   "dir": "ltr",
   "prefer_related_applications": false,
@@ -21,7 +31,7 @@
       "purpose": "any"
     },
     {
-      "src": "/icon-192.png",
+      "src": "/icon-maskable-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
@@ -33,10 +43,73 @@
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouveau Relevé",
+      "short_name": "Relevé",
+      "description": "Déclencher un nouveau relevé de position GPS et mémo vocal",
+      "url": "/?action=record",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Carte & Trace GPS",
+      "short_name": "Carte",
+      "description": "Consulter la carte satellite et les points géolocalisés",
+      "url": "/?tab=map",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Historique des Points",
+      "short_name": "Historique",
+      "description": "Voir la liste de tous les relevés et écouter les mémos",
+      "url": "/?tab=list",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Écran de navigation et relevé GPS mobile"
+    },
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Carte interactive et journal de terrain"
     }
   ]
 }
