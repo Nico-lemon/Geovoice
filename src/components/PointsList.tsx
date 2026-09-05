@@ -21,60 +21,42 @@ interface PointsListProps {
   onDeletePoint: (id: string) => void;
 }
 
-const CATEGORY_LABELS: Record<string, { label: string; bgLight: string; textLight: string; borderLight: string; bgDark: string; textDark: string; borderDark: string }> = {
+const CATEGORY_LABELS: Record<string, { label: string; bg: string; text: string; border: string }> = {
   remarquable: {
-    label: 'Remarquable',
-    bgLight: 'bg-emerald-100',
-    textLight: 'text-emerald-900',
-    borderLight: 'border-emerald-300',
-    bgDark: 'bg-emerald-500/20',
-    textDark: 'text-emerald-300',
-    borderDark: 'border-emerald-500/40',
+    label: 'POINT D\'INTÉRÊT',
+    bg: 'bg-[#4A6B52]',
+    text: 'text-white',
+    border: 'border-[#707B71]',
   },
   obstacle: {
-    label: 'Obstacle / Alerte',
-    bgLight: 'bg-rose-100',
-    textLight: 'text-rose-900',
-    borderLight: 'border-rose-300',
-    bgDark: 'bg-rose-500/20',
-    textDark: 'text-rose-300',
-    borderDark: 'border-rose-500/40',
+    label: 'OBSTACLE / ALERTE',
+    bg: 'bg-[#FF6B35]',
+    text: 'text-black font-black',
+    border: 'border-black',
   },
   faune_flore: {
-    label: 'Faune & Flore',
-    bgLight: 'bg-lime-100',
-    textLight: 'text-lime-900',
-    borderLight: 'border-lime-300',
-    bgDark: 'bg-lime-500/20',
-    textDark: 'text-lime-300',
-    borderDark: 'border-lime-500/40',
+    label: 'FAUNE & FLORE',
+    bg: 'bg-[#2E3E47]',
+    text: 'text-[#D1FF00]',
+    border: 'border-[#4A6B52]',
   },
   travaux: {
-    label: 'Travaux / Chantier',
-    bgLight: 'bg-amber-100',
-    textLight: 'text-amber-900',
-    borderLight: 'border-amber-300',
-    bgDark: 'bg-amber-500/20',
-    textDark: 'text-amber-300',
-    borderDark: 'border-amber-500/40',
+    label: 'TRAVAUX // RECON',
+    bg: 'bg-[#1F2B32]',
+    text: 'text-[#FF6B35]',
+    border: 'border-[#FF6B35]',
   },
   orientation: {
-    label: 'Repère & Cap',
-    bgLight: 'bg-cyan-100',
-    textLight: 'text-cyan-900',
-    borderLight: 'border-cyan-300',
-    bgDark: 'bg-cyan-500/20',
-    textDark: 'text-cyan-300',
-    borderDark: 'border-cyan-500/40',
+    label: 'CAP // BALISE',
+    bg: 'bg-[#172025]',
+    text: 'text-[#CFCFCF]',
+    border: 'border-[#4A6B52]',
   },
   divers: {
-    label: 'Divers',
-    bgLight: 'bg-purple-100',
-    textLight: 'text-purple-900',
-    borderLight: 'border-purple-300',
-    bgDark: 'bg-purple-500/20',
-    textDark: 'text-purple-300',
-    borderDark: 'border-purple-500/40',
+    label: 'DIVERS',
+    bg: 'bg-[#172025]',
+    text: 'text-[#8E9CA3]',
+    border: 'border-[#2E3E47]',
   },
 };
 
@@ -122,34 +104,34 @@ export const PointsList: React.FC<PointsListProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full space-y-3.5">
+    <div className="flex flex-col h-full space-y-3 font-mono">
       {/* Barre de recherche et filtres */}
       <div className="space-y-2">
         <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#FF6B35] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Rechercher un point, un mot-clé ou une note..."
+            placeholder="RECHERCHER BALISE, MOT-CLÉ, TRANSCRIPTION..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             id="input-search-points"
-            className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-xs"
+            className="w-full bg-[#172025] border-2 border-[#4A6B52] rounded-none pl-10 pr-4 py-2.5 text-xs text-[#CFCFCF] placeholder-[#8E9CA3] focus:outline-none focus:border-[#FF6B35] transition-all shadow-[2px_2px_0px_#000000]"
           />
         </div>
 
-        {/* Filtres par catégories (chips) */}
+        {/* Filtres par catégories (chips carrés tactiques) */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
           <button
             onClick={() => setSelectedCategory('all')}
             id="filter-cat-all"
             type="button"
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors shadow-xs ${
+            className={`px-3 py-1.5 rounded-none text-xs font-bold font-mono uppercase whitespace-nowrap transition-all border-2 shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 ${
               selectedCategory === 'all'
-                ? 'bg-emerald-600 text-white'
-                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-800'
+                ? 'bg-[#4A6B52] text-white border-[#707B71]'
+                : 'bg-[#172025] text-[#8E9CA3] hover:text-white border-[#2E3E47]'
             }`}
           >
-            Tous ({points.length})
+            TOUS ({points.length})
           </button>
           {Object.entries(CATEGORY_LABELS).map(([key, info]) => {
             const count = points.filter((p) => p.category === key).length;
@@ -160,10 +142,10 @@ export const PointsList: React.FC<PointsListProps> = ({
                 onClick={() => setSelectedCategory(key)}
                 id={`filter-cat-${key}`}
                 type="button"
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors border shadow-xs ${
+                className={`px-2.5 py-1.5 rounded-none text-xs font-bold font-mono uppercase whitespace-nowrap transition-all border-2 shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 ${
                   selectedCategory === key
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-300 dark:border-slate-800'
+                    ? 'bg-[#4A6B52] text-white border-[#FF6B35]'
+                    : 'bg-[#172025] text-[#8E9CA3] hover:text-white border-[#2E3E47]'
                 }`}
               >
                 {info.label} ({count})
@@ -174,20 +156,20 @@ export const PointsList: React.FC<PointsListProps> = ({
       </div>
 
       {/* Liste défilante des points */}
-      <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
+      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
         {filteredPoints.length === 0 ? (
-          <div className="text-center py-14 px-4 border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-3xl space-y-3 bg-white/50 dark:bg-slate-900/30">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 flex items-center justify-center mx-auto text-emerald-600 dark:text-emerald-400">
-              <MapPin className="w-7 h-7" />
+          <div className="text-center py-12 px-4 border-2 border-[#2E3E47] bg-[#172025] space-y-3 text-[#8E9CA3]">
+            <div className="w-12 h-12 bg-[#12181B] border-2 border-[#4A6B52] text-[#FF6B35] flex items-center justify-center mx-auto shadow-[2px_2px_0px_#000000]">
+              <MapPin className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <div className="text-base font-bold text-slate-900 dark:text-slate-200">
-                {points.length === 0 ? 'Aucun point balisé pour le moment' : 'Aucun point correspondant'}
+              <div className="text-sm font-black text-[#CFCFCF] uppercase">
+                {points.length === 0 ? 'AUCUNE BALISE DÉTECTÉE' : 'AUCUN RÉSULTAT CORRESPONDANT'}
               </div>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+              <p className="text-xs text-[#8E9CA3] max-w-sm mx-auto leading-relaxed">
                 {points.length === 0
-                  ? 'Appuyez sur votre bouton Bluetooth ou sur le micro vert en bas pour créer votre premier point géolocalisé avec note vocale.'
-                  : 'Modifiez vos termes de recherche ou sélectionnez un autre filtre de catégorie.'}
+                  ? 'Appuyez sur le bouton circulaire REC en bas pour enregistrer un point GPS avec note vocale.'
+                  : 'Modifiez vos filtres de recherche ou sélectionnez un autre paramètre.'}
               </p>
             </div>
           </div>
@@ -202,25 +184,25 @@ export const PointsList: React.FC<PointsListProps> = ({
               <div
                 key={pt.id}
                 onClick={() => onSelectPoint(pt)}
-                className={`group relative rounded-2xl p-4 transition-all duration-200 cursor-pointer shadow-sm border ${
+                className={`group relative rounded-none p-3.5 transition-all duration-150 cursor-pointer border-2 shadow-[3px_3px_0px_#000000] ${
                   isSelected
-                    ? 'bg-emerald-50/70 dark:bg-slate-900 border-emerald-500 ring-2 ring-emerald-500/30'
-                    : 'bg-white dark:bg-slate-900/80 border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 hover:shadow-md'
+                    ? 'bg-[#1F2B32] border-[#FF6B35]'
+                    : 'bg-[#172025] border-[#4A6B52] hover:border-[#707B71]'
                 }`}
               >
                 {/* En-tête de carte */}
-                <div className="flex items-start justify-between gap-3 mb-2.5">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-black font-mono flex items-center justify-center shrink-0 shadow-xs">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-7 h-7 rounded-none bg-[#12181B] border-2 border-[#4A6B52] text-[#FF6B35] text-xs font-black font-mono flex items-center justify-center shrink-0">
                       {num}
                     </span>
-                    <h4 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 truncate">
-                      {pt.title || `Point #${num}`}
+                    <h4 className="text-sm font-black text-white truncate uppercase font-tech">
+                      {pt.title || `BALISE #${num}`}
                     </h4>
                   </div>
 
                   <span
-                    className={`text-xs px-2.5 py-0.5 rounded-lg font-bold shrink-0 border ${catInfo.bgLight} ${catInfo.textLight} ${catInfo.borderLight} dark:${catInfo.bgDark} dark:${catInfo.textDark} dark:${catInfo.borderDark}`}
+                    className={`text-[10px] px-2 py-0.5 font-bold uppercase shrink-0 border ${catInfo.bg} ${catInfo.text} ${catInfo.border}`}
                   >
                     {catInfo.label}
                   </span>
@@ -228,68 +210,68 @@ export const PointsList: React.FC<PointsListProps> = ({
 
                 {/* Transcription vocale claire */}
                 {pt.transcription ? (
-                  <div className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium leading-relaxed bg-slate-100 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 mb-3 italic">
+                  <div className="text-xs text-[#CFCFCF] bg-[#12181B] p-2.5 border border-[#2E3E47] mb-2.5 italic font-sans leading-relaxed">
                     "{pt.transcription}"
                   </div>
                 ) : (
-                  <div className="text-xs text-slate-400 italic mb-2.5">
-                    Aucune retranscription vocale textuelle
+                  <div className="text-[11px] text-[#8E9CA3] italic mb-2">
+                    Aucune note vocale enregistrée
                   </div>
                 )}
 
                 {/* Lecteur audio intégré */}
                 {pt.audioBlob && (
-                  <div className="mb-3">
+                  <div className="mb-2.5">
                     <AudioPlayer audioBlob={pt.audioBlob} duration={pt.audioDuration} compact />
                   </div>
                 )}
 
                 {/* Données techniques GPS & Horodatage */}
-                <div className="grid grid-cols-2 gap-2 text-xs font-mono text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-850 mb-3">
-                  <div className="flex items-center gap-1">
-                    <span>🕒</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-300">
+                <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono text-[#8E9CA3] bg-[#12181B] p-2 border border-[#2E3E47] mb-2.5">
+                  <div>
+                    <span>TIME: </span>
+                    <span className="font-bold text-[#CFCFCF]">
                       {date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}{' '}
                       {date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1 font-bold text-slate-900 dark:text-slate-100">
-                    <span>🎯</span>
-                    <span>±{pt.coords.accuracy.toFixed(1)} m</span>
+                  <div className="text-right">
+                    <span>FIX: </span>
+                    <span className="font-black text-[#FF6B35]">±{pt.coords.accuracy.toFixed(1)}m</span>
                   </div>
 
-                  <div className="col-span-2 flex items-center justify-between text-[11px] pt-1 border-t border-slate-200 dark:border-slate-800">
-                    <span className="font-semibold">
+                  <div className="col-span-2 flex items-center justify-between pt-1 border-t border-[#2E3E47]">
+                    <span className="font-bold text-[#CFCFCF]">
                       {formatGpsCoords(pt.coords.latitude, pt.coords.longitude)}
                     </span>
                     {pt.coords.altitude !== null && (
-                      <span className="text-emerald-700 dark:text-emerald-400 font-bold">
-                        ⛰️ {pt.coords.altitude.toFixed(0)} m
+                      <span className="text-[#D1FF00] font-black">
+                        ALT {pt.coords.altitude.toFixed(0)}m
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Barre d'actions rapides sous chaque point */}
-                <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-slate-800">
+                {/* Barre d'actions rapides sous chaque point avec boutons carrés */}
+                <div className="flex items-center justify-between pt-1 border-t border-[#2E3E47]">
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={(e) => handleCopyCoords(pt, e)}
                       id={`btn-copy-${pt.id}`}
-                      className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs flex items-center gap-1"
+                      className="px-2 py-1 bg-[#12181B] hover:bg-[#2E3E47] border border-[#4A6B52] text-[#CFCFCF] text-xs flex items-center gap-1 uppercase transition-all shadow-xs"
                       title="Copier les coordonnées GPS"
                     >
                       {copiedId === pt.id ? (
                         <>
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          <span className="text-emerald-600 font-bold">Copié</span>
+                          <Check className="w-3.5 h-3.5 text-[#D1FF00]" />
+                          <span className="text-[#D1FF00] font-bold">COPIÉ</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline font-semibold">GPS</span>
+                          <Copy className="w-3.5 h-3.5 text-[#FF6B35]" />
+                          <span className="font-bold">GPS</span>
                         </>
                       )}
                     </button>
@@ -299,22 +281,22 @@ export const PointsList: React.FC<PointsListProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs flex items-center gap-1 font-semibold"
+                      className="px-2 py-1 bg-[#12181B] hover:bg-[#2E3E47] border border-[#4A6B52] text-[#CFCFCF] text-xs flex items-center gap-1 uppercase transition-all shadow-xs"
                       title="Ouvrir dans Google Maps"
                     >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Maps</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-[#D1FF00]" />
+                      <span>MAPS</span>
                     </a>
 
                     {pt.audioBlob && (
                       <button
                         type="button"
                         onClick={(e) => handleDownloadAudio(pt, e)}
-                        className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs flex items-center gap-1 font-semibold"
-                        title="Télécharger l'enregistrement audio individuel"
+                        className="px-2 py-1 bg-[#12181B] hover:bg-[#2E3E47] border border-[#4A6B52] text-[#CFCFCF] text-xs flex items-center gap-1 uppercase transition-all shadow-xs"
+                        title="Télécharger l'enregistrement audio"
                       >
-                        <Download className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Audio</span>
+                        <Download className="w-3.5 h-3.5 text-[#FF6B35]" />
+                        <span>AUDIO</span>
                       </button>
                     )}
                   </div>
@@ -327,25 +309,25 @@ export const PointsList: React.FC<PointsListProps> = ({
                         onEditPoint(pt);
                       }}
                       id={`btn-edit-${pt.id}`}
-                      className="p-2 text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      className="p-1.5 bg-[#12181B] hover:bg-[#4A6B52] border border-[#4A6B52] text-[#CFCFCF] hover:text-white transition-colors"
                       title="Modifier les informations"
                     >
-                      <Edit3 className="w-4 h-4" />
+                      <Edit3 className="w-3.5 h-3.5" />
                     </button>
 
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (confirm(`Supprimer le point "${pt.title || 'Point'}" ?`)) {
+                        if (confirm(`Supprimer la balise "${pt.title || 'Point'}" ?`)) {
                           onDeletePoint(pt.id);
                         }
                       }}
                       id={`btn-delete-${pt.id}`}
-                      className="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
-                      title="Supprimer ce point"
+                      className="p-1.5 bg-[#12181B] hover:bg-[#FF6B35] border border-[#4A6B52] text-[#FF6B35] hover:text-black transition-colors"
+                      title="Supprimer cette balise"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>

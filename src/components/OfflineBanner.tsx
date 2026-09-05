@@ -33,26 +33,26 @@ export const OfflineBanner: React.FC = () => {
   return (
     <aside
       aria-label="Statut hors-ligne"
-      className="bg-amber-500 text-slate-950 px-4 py-2.5 flex items-center justify-between text-xs sm:text-sm font-bold shadow-md animate-in slide-in-from-top duration-300 z-40 border-b border-amber-600"
+      className="bg-[#172025] text-[#FF6B35] px-4 py-2 flex items-center justify-between text-xs font-mono font-bold shadow-[2px_2px_0px_#000000] z-40 border-b-2 border-[#FF6B35]"
     >
       <div className="flex items-center gap-2.5 max-w-5xl mx-auto flex-1">
-        <div className="p-1 rounded-lg bg-amber-600/30 text-slate-950 shrink-0">
+        <div className="p-1 bg-[#12181B] border border-[#FF6B35] text-[#FF6B35] shrink-0">
           <WifiOff className="w-4 h-4" />
         </div>
         <p className="leading-tight">
-          <span className="font-extrabold uppercase tracking-wide mr-1.5 underline decoration-amber-900">
-            Mode Hors-Ligne Actif :
+          <span className="font-black uppercase tracking-wider mr-1.5 text-white">
+            [MODE HORS-LIGNE AUTONOME] :
           </span>
-          L'application fonctionne à 100% sans connexion Internet. Vos coordonnées GPS, mémos vocaux et déclencheurs Bluetooth sont enregistrés directement dans la mémoire de votre appareil.
+          GPS satellite actif. Données et audio sauvegardés localement en mémoire IndexedDB.
         </p>
       </div>
 
       <button
         onClick={() => setDismissed(true)}
-        className="ml-3 px-2.5 py-1 rounded-lg bg-amber-600/30 hover:bg-amber-600/50 text-slate-950 font-bold text-xs transition-colors shrink-0"
+        className="ml-3 px-2.5 py-1 bg-[#12181B] hover:bg-[#FF6B35] text-[#FF6B35] hover:text-black border border-[#FF6B35] font-mono uppercase text-xs transition-colors shrink-0"
         title="Masquer l'alerte"
       >
-        Compris
+        OK
       </button>
     </aside>
   );

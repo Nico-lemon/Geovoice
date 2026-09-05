@@ -67,19 +67,19 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({ point, onClo
   const osmUrl = `https://www.openstreetmap.org/?mlat=${point.coords.latitude}&mlon=${point.coords.longitude}#map=17/${point.coords.latitude}/${point.coords.longitude}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs font-mono">
+      <div className="bg-[#12181B] border-2 border-[#4A6B52] rounded-none max-w-lg w-full max-h-[90vh] flex flex-col shadow-[6px_6px_0px_#000000] overflow-hidden text-[#CFCFCF]">
         {/* En-tête */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-[#4A6B52] bg-[#172025]">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
-              <MapPin className="w-6 h-6" />
+            <div className="p-2 bg-[#12181B] border border-[#4A6B52] text-[#FF6B35]">
+              <MapPin className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-slate-100">
-                Détails du point GPS
+              <h3 className="font-black text-sm sm:text-base text-white uppercase font-tech tracking-wider">
+                DÉTAILS // BALISE TACTIQUE
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-mono font-semibold">
+              <p className="text-[11px] text-[#8E9CA3] font-mono">
                 {new Date(point.timestamp).toLocaleString('fr-FR')}
               </p>
             </div>
@@ -89,29 +89,29 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({ point, onClo
             onClick={onClose}
             id="btn-close-modal"
             type="button"
-            className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 bg-[#12181B] border border-[#4A6B52] text-[#CFCFCF] hover:text-[#FF6B35] transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Corps du formulaire */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5 flex-1">
+        <form onSubmit={handleSubmit} className="p-5 overflow-y-auto space-y-4 flex-1">
           {/* Lecteur audio */}
           {point.audioBlob && (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                  Note vocale enregistrée
+                <span className="font-bold uppercase tracking-wider text-[#FF6B35]">
+                  // TRANSMISSION AUDIO
                 </span>
                 <button
                   type="button"
                   onClick={handleDownloadAudio}
                   id="btn-download-audio-point"
-                  className="text-emerald-700 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 font-bold text-xs"
+                  className="text-[#D1FF00] hover:underline inline-flex items-center gap-1 font-bold text-xs"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Exporter l'audio (.webm)</span>
+                  <span>EXPORTER (.WEBM)</span>
                 </button>
               </div>
               <AudioPlayer audioBlob={point.audioBlob} duration={point.audioDuration} />
@@ -119,33 +119,33 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({ point, onClo
           )}
 
           {/* Titre et Catégorie */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                Titre du point
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-1">
+              <label className="text-xs font-bold uppercase text-[#CFCFCF]">
+                NOM DU POINT / BALISE
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 id="input-point-title"
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-medium"
-                placeholder="Ex: Borne sentier #4"
+                className="w-full bg-[#172025] border-2 border-[#4A6B52] rounded-none px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF6B35] font-mono shadow-[2px_2px_0px_#000000]"
+                placeholder="Ex: BORNE ALPHA-01"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                Catégorie
+            <div className="space-y-1">
+              <label className="text-xs font-bold uppercase text-[#CFCFCF]">
+                CATÉGORIE / STATUT
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as any)}
                 id="select-point-category"
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-medium"
+                className="w-full bg-[#172025] border-2 border-[#4A6B52] rounded-none px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF6B35] font-mono shadow-[2px_2px_0px_#000000]"
               >
                 {CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={c.id} className="bg-[#172025] text-white">
                     {c.label}
                   </option>
                 ))}
@@ -154,104 +154,104 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({ point, onClo
           </div>
 
           {/* Transcription vocale */}
-          <div className="space-y-1.5">
-            <label className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-              <span>Transcription de la voix</span>
-              <span className="text-xs text-slate-500 font-normal">Modifiable</span>
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase text-[#CFCFCF] flex items-center justify-between">
+              <span>TRANSCRIPTION VOCALE</span>
+              <span className="text-[10px] text-[#8E9CA3] font-mono">[ÉDITABLE]</span>
             </label>
             <textarea
               rows={3}
               value={transcription}
               onChange={(e) => setTranscription(e.target.value)}
               id="textarea-point-transcription"
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all resize-none leading-relaxed font-medium"
+              className="w-full bg-[#172025] border-2 border-[#4A6B52] rounded-none p-2.5 text-xs text-[#CFCFCF] focus:outline-none focus:border-[#FF6B35] resize-none leading-relaxed font-mono shadow-[2px_2px_0px_#000000]"
               placeholder="Texte de la note vocale..."
             />
           </div>
 
           {/* Notes textuelles complémentaires */}
-          <div className="space-y-1.5">
-            <label className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-              Notes additionnelles (optionnel)
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase text-[#CFCFCF]">
+              NOTES DE MISSION COMPLÉMENTAIRES
             </label>
             <textarea
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               id="textarea-point-notes"
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all resize-none font-medium"
-              placeholder="Informations supplémentaires de terrain..."
+              className="w-full bg-[#172025] border-2 border-[#4A6B52] rounded-none p-2.5 text-xs text-[#CFCFCF] focus:outline-none focus:border-[#FF6B35] resize-none font-mono shadow-[2px_2px_0px_#000000]"
+              placeholder="Données tactiques de terrain..."
             />
           </div>
 
           {/* Bloc Coordonnées & Données GPS précises */}
-          <div className="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3 text-xs font-mono">
-            <div className="font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider text-[11px]">
-              Coordonnées GPS exactes
+          <div className="bg-[#172025] border-2 border-[#2E3E47] p-3.5 space-y-2 text-xs font-mono shadow-[2px_2px_0px_#000000]">
+            <div className="font-bold text-[#FF6B35] uppercase tracking-wider text-[11px]">
+              // TÉLÉMÉTRIE & GÉOLOCALISATION
             </div>
-            <div className="grid grid-cols-2 gap-2 text-slate-700 dark:text-slate-300">
+            <div className="grid grid-cols-2 gap-2 text-[#CFCFCF]">
               <div>
-                Latitude : <strong className="text-slate-900 dark:text-slate-100">{point.coords.latitude.toFixed(6)}</strong>
+                LAT : <strong className="text-white">{point.coords.latitude.toFixed(6)}</strong>
               </div>
               <div>
-                Longitude : <strong className="text-slate-900 dark:text-slate-100">{point.coords.longitude.toFixed(6)}</strong>
+                LON : <strong className="text-white">{point.coords.longitude.toFixed(6)}</strong>
               </div>
               <div>
-                Précision : <strong className="text-emerald-700 dark:text-emerald-400">±{point.coords.accuracy.toFixed(1)}m</strong>
+                PRÉCISION : <strong className="text-[#D1FF00]">±{point.coords.accuracy.toFixed(1)}m</strong>
               </div>
               <div>
-                Altitude : <strong className="text-slate-900 dark:text-slate-100">{point.coords.altitude !== null ? `${point.coords.altitude.toFixed(0)}m` : 'N/A'}</strong>
+                ALTITUDE : <strong className="text-white">{point.coords.altitude !== null ? `${point.coords.altitude.toFixed(0)}m` : 'N/A'}</strong>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-[#2E3E47]">
               <a
                 href={googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-blue-700 dark:text-blue-400 font-bold rounded-lg border border-slate-300 dark:border-slate-700 text-xs shadow-xs"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#12181B] hover:bg-[#2E3E47] text-white border border-[#4A6B52] text-xs uppercase shadow-xs"
               >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>Ouvrir Google Maps</span>
+                <ExternalLink className="w-3.5 h-3.5 text-[#D1FF00]" />
+                <span>GOOGLE MAPS</span>
               </a>
 
               <a
                 href={osmUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-400 font-bold rounded-lg border border-slate-300 dark:border-slate-700 text-xs shadow-xs"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#12181B] hover:bg-[#2E3E47] text-white border border-[#4A6B52] text-xs uppercase shadow-xs"
               >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>OpenStreetMap</span>
+                <ExternalLink className="w-3.5 h-3.5 text-[#D1FF00]" />
+                <span>OPENSTREETMAP</span>
               </a>
 
               <button
                 type="button"
                 onClick={handleDownloadSingleGpx}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-lg border border-slate-300 dark:border-slate-700 text-xs shadow-xs"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#12181B] hover:bg-[#2E3E47] text-white border border-[#4A6B52] text-xs uppercase shadow-xs"
               >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export GPX</span>
+                <Download className="w-3.5 h-3.5 text-[#FF6B35]" />
+                <span>EXPORT GPX</span>
               </button>
             </div>
           </div>
 
           {/* Boutons d'action du formulaire */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#2E3E47]">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 border-2 border-[#2E3E47] text-[#8E9CA3] hover:text-white font-mono uppercase text-xs shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5"
             >
-              Annuler
+              ANNULER
             </button>
             <button
               type="submit"
               id="btn-save-point-details"
-              className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all"
+              className="px-5 py-2 bg-[#4A6B52] hover:bg-[#3d5843] border-2 border-[#707B71] text-white font-mono font-black uppercase text-xs flex items-center gap-2 shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
             >
-              <Save className="w-4 h-4" />
-              <span>Enregistrer les modifications</span>
+              <Save className="w-4 h-4 text-[#D1FF00]" />
+              <span>ENREGISTRER MODIFICATIONS</span>
             </button>
           </div>
         </form>

@@ -26,12 +26,11 @@ export default function App() {
   const [selectedPoint, setSelectedPoint] = useState<GpsPoint | null>(null);
   const [selectedPointId, setSelectedPointId] = useState<string | null>(null);
 
-  // Thème clair haute visibilité pour l'extérieur
-  const theme = 'light';
+  // Thème tactique militaire haute visibilité
+  const theme = 'dark';
 
   useEffect(() => {
-    localStorage.removeItem('geovoice_theme');
-    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('dark');
   }, []);
 
   // États d'enregistrement
@@ -84,11 +83,26 @@ export default function App() {
   const [bluetoothConfig, setBluetoothConfig] = useState<BluetoothConfig>({
     mode: 'all',
     behavior: 'toggle',
-    customKeyCodes: ['Space', 'Enter', 'AudioVolumeUp', 'MediaPlayPause', 'MediaTrackNext'],
+    customKeyCodes: [
+      'AudioVolumeUp',
+      'AudioVolumeDown',
+      'VolumeUp',
+      'VolumeDown',
+      'Space',
+      'Enter',
+      'MediaPlayPause',
+      'MediaTrackNext',
+    ],
+    volumeTriggerMode: 'both',
+    preventVolumeAction: true,
     isConnectedBle: false,
     pocketModeActive: false,
     keepScreenAwake: true,
   });
+
+  useEffect(() => {
+    bluetoothService.setConfig(bluetoothConfig);
+  }, [bluetoothConfig]);
 
   const [audioSettings, setAudioSettings] = useState<AudioFeedbackSettings>({
     beepsEnabled: true,
@@ -281,14 +295,10 @@ export default function App() {
     setSelectedPointId(point.id);
   };
 
-  const isLight = theme === 'light';
+  const isLight = false;
 
   return (
-    <div
-      className={`min-h-screen flex flex-col font-sans transition-colors ${
-        isLight ? 'bg-slate-50 text-slate-900' : 'bg-slate-950 text-slate-100'
-      }`}
-    >
+    <div className="min-h-screen flex flex-col font-sans bg-[#12181B] text-[#CFCFCF] selection:bg-[#FF6B35] selection:text-black">
       {/* En-tête globale */}
       <Header
         gpsLocation={currentLocation}
@@ -312,53 +322,41 @@ export default function App() {
       <OfflineBanner />
 
       {/* Contenu principal */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-4 pb-28">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col gap-4 pb-28">
         {/* Navigation par onglets (sur mobile) */}
-        <div
-          className={`flex items-center justify-between lg:hidden border-b pb-3 ${
-            isLight ? 'border-slate-200' : 'border-slate-800'
-          }`}
-        >
-          <div
-            className={`flex items-center gap-1 p-1 rounded-2xl border ${
-              isLight ? 'bg-white border-slate-300' : 'bg-slate-900 border-slate-800'
-            }`}
-          >
+        <div className="flex items-center justify-between lg:hidden border-b border-[#2E3E47] pb-3 font-mono">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab('map')}
               id="tab-btn-map"
               type="button"
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-none text-xs font-mono font-black uppercase transition-all border-2 shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 ${
                 activeTab === 'map'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : isLight
-                  ? 'text-slate-600 hover:text-slate-900'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#4A6B52] text-white border-[#707B71]'
+                  : 'bg-[#172025] text-[#8E9CA3] border-[#2E3E47] hover:text-white'
               }`}
             >
-              <MapIcon className="w-4 h-4" />
-              <span>Carte ({points.length})</span>
+              <MapIcon className="w-4 h-4 text-[#FF6B35]" />
+              <span>CARTE [{points.length}]</span>
             </button>
             <button
               onClick={() => setActiveTab('list')}
               id="tab-btn-list"
               type="button"
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-none text-xs font-mono font-black uppercase transition-all border-2 shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 ${
                 activeTab === 'list'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : isLight
-                  ? 'text-slate-600 hover:text-slate-900'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#4A6B52] text-white border-[#707B71]'
+                  : 'bg-[#172025] text-[#8E9CA3] border-[#2E3E47] hover:text-white'
               }`}
             >
-              <List className="w-4 h-4" />
-              <span>Liste des points</span>
+              <List className="w-4 h-4 text-[#D1FF00]" />
+              <span>BALISES</span>
             </button>
           </div>
         </div>
 
         {/* Disposition Desktop en 2 colonnes / Mobile avec bascule d'onglets */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[550px]">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 min-h-[550px]">
           {/* Colonne Carte */}
           <div
             className={`lg:col-span-7 flex flex-col h-[480px] lg:h-[700px] ${
@@ -380,32 +378,22 @@ export default function App() {
               activeTab === 'list' ? 'block' : 'hidden lg:flex'
             }`}
           >
-            <div
-              className={`border rounded-3xl p-4 sm:p-5 flex flex-col h-full shadow-sm transition-colors ${
-                isLight
-                  ? 'bg-white border-slate-300 shadow-slate-200/50'
-                  : 'bg-slate-900/90 border-slate-800 shadow-black/40'
-              }`}
-            >
-              <div
-                className={`flex items-center justify-between mb-3.5 border-b pb-3 ${
-                  isLight ? 'border-slate-200' : 'border-slate-800'
-                }`}
-              >
+            <div className="border-2 border-[#4A6B52] bg-[#12181B] rounded-none p-3.5 sm:p-4 flex flex-col h-full shadow-[4px_4px_0px_#000000]">
+              <div className="flex items-center justify-between mb-3 border-b border-[#2E3E47] pb-2.5 font-mono">
                 <div className="flex items-center gap-2">
-                  <List className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                  <h3 className="font-black text-base text-slate-900 dark:text-slate-100">
-                    Relevés de terrain ({points.length})
+                  <List className="w-5 h-5 text-[#FF6B35]" />
+                  <h3 className="font-black text-sm sm:text-base text-white uppercase tracking-wider font-tech">
+                    RELEVÉS & BALISES ({points.length})
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsExportModalOpen(true)}
                   id="btn-quick-export"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition-all active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#4A6B52] hover:bg-[#3d5843] border-2 border-[#707B71] text-white font-mono font-black text-xs uppercase shadow-[2px_2px_0px_#000000] transition-all active:translate-x-0.5 active:translate-y-0.5"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Exporter ({points.length})</span>
+                  <Download className="w-3.5 h-3.5 text-[#FF6B35]" />
+                  <span>EXPORTER ({points.length})</span>
                 </button>
               </div>
 
@@ -433,6 +421,7 @@ export default function App() {
           currentLocation={currentLocation}
           lastTriggerSource={lastTriggerSource}
           onTriggerRecord={() => handleTriggerAction('Bouton Écran')}
+          onOpenBluetoothModal={() => setIsBluetoothModalOpen(true)}
         />
       )}
 
@@ -468,6 +457,10 @@ export default function App() {
           onUpdateConfig={(cfg) => setBluetoothConfig((prev) => ({ ...prev, ...cfg }))}
           onUpdateAudioSettings={(st) => setAudioSettings((prev) => ({ ...prev, ...st }))}
           onClose={() => setIsBluetoothModalOpen(false)}
+          onOpenAndroidModal={() => {
+            setIsBluetoothModalOpen(false);
+            setIsAndroidModalOpen(true);
+          }}
         />
       )}
 

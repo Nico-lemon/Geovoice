@@ -49,20 +49,25 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const TILE_LAYERS = {
-  streets: {
-    name: 'Plan Clair (OpenStreetMap)',
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; OpenStreetMap contributors',
-  },
   topo: {
-    name: 'Topo Randonnée (OpenTopoMap)',
+    name: 'TOPO DÉTAILLÉE (OpenTopoMap)',
     url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
     attribution: '&copy; OpenTopoMap contributors',
   },
+  esriTopo: {
+    name: 'TOPO RELIEF (Esri World Topo)',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+    attribution: '&copy; Esri & Garmin',
+  },
   satellite: {
-    name: 'Satellite (Esri Imagery)',
+    name: 'SATELLITE RECON (Esri Imagery)',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     attribution: '&copy; Esri & Maxar',
+  },
+  dark: {
+    name: 'TACTIQUE NUIT (Carto Dark)',
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    attribution: '&copy; CartoDB',
   },
 };
 
@@ -71,10 +76,9 @@ export const MapViewer: React.FC<MapViewerProps> = ({
   currentLocation,
   trackPoints = [],
   selectedPointId,
-  theme = 'light',
+  theme = 'dark',
   onSelectPoint,
 }) => {
-  const isLight = theme === 'light';
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
@@ -83,7 +87,8 @@ export const MapViewer: React.FC<MapViewerProps> = ({
   const accuracyCircleRef = useRef<L.Circle | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
 
-  const [activeLayer, setActiveLayer] = useState<keyof typeof TILE_LAYERS>('streets');
+  // Topo détaillée par défaut
+  const [activeLayer, setActiveLayer] = useState<keyof typeof TILE_LAYERS>('topo');
   const [showLayerMenu, setShowLayerMenu] = useState(false);
   const [autoPlayOnClick, setAutoPlayOnClick] = useState(true);
 
@@ -95,9 +100,9 @@ export const MapViewer: React.FC<MapViewerProps> = ({
   const [playbackRate, setPlaybackRate] = useState(1);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Initialisation du fond de carte
+  // Initialisation du fond de carte en Topo détaillée
   useEffect(() => {
-    setActiveLayer('streets');
+    setActiveLayer('topo');
   }, []);
 
   // Fonction pour jouer l'audio d'un point
@@ -211,9 +216,10 @@ export const MapViewer: React.FC<MapViewerProps> = ({
     markersLayerRef.current = L.layerGroup().addTo(map);
 
     trackPolylineRef.current = L.polyline([], {
-      color: '#059669',
-      weight: 4,
-      opacity: 0.9,
+      color: '#FF6B35', // Orange sécurité
+      weight: 5,
+      opacity: 0.95,
+      lineJoin: 'round',
       dashArray: '6, 8',
     }).addTo(map);
 
@@ -252,13 +258,14 @@ export const MapViewer: React.FC<MapViewerProps> = ({
       const pulseIcon = L.divIcon({
         className: 'current-pos-icon',
         html: `
-          <div class="relative flex items-center justify-center w-8 h-8">
-            <div class="absolute w-8 h-8 bg-blue-500 rounded-full animate-ping opacity-60"></div>
-            <div class="relative w-5 h-5 bg-blue-600 border-2 border-white rounded-full shadow-lg"></div>
+          <div class="relative flex items-center justify-center w-9 h-9">
+            <div class="absolute w-9 h-9 bg-[#FF6B35]/25 rounded-full animate-ping"></div>
+            <div class="absolute w-7 h-7 border border-[#FF6B35] rounded-full animate-pulse"></div>
+            <div class="relative w-4 h-4 bg-[#FF6B35] border-2 border-[#12181B] rounded-none rotate-45 shadow-[0_0_8px_#FF6B35]"></div>
           </div>
         `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
       });
 
       currentPosMarkerRef.current = L.marker(latlng, { icon: pulseIcon }).addTo(map);
@@ -269,10 +276,11 @@ export const MapViewer: React.FC<MapViewerProps> = ({
     if (!accuracyCircleRef.current) {
       accuracyCircleRef.current = L.circle(latlng, {
         radius: currentLocation.accuracy,
-        color: '#2563eb',
-        fillColor: '#3b82f6',
-        fillOpacity: 0.18,
-        weight: 2,
+        color: '#FF6B35',
+        fillColor: '#FF6B35',
+        fillOpacity: 0.12,
+        weight: 1.5,
+        dashArray: '4, 4',
       }).addTo(map);
     } else {
       accuracyCircleRef.current.setLatLng(latlng);
@@ -280,7 +288,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
     }
   }, [currentLocation]);
 
-  // Tracé du parcours continu
+  // Tracé du parcours continu (Orange Sécurité #FF6B35)
   useEffect(() => {
     if (!trackPolylineRef.current) return;
     const latlngs: L.LatLngExpression[] = trackPoints.map((tp) => [tp.latitude, tp.longitude]);
@@ -296,30 +304,29 @@ export const MapViewer: React.FC<MapViewerProps> = ({
     points.forEach((point, idx) => {
       const isSelected = point.id === selectedPointId;
       const isThisAudioPlaying = activeAudioPoint?.id === point.id && isPlaying;
-      const color = CATEGORY_COLORS[point.category] || '#059669';
       const number = points.length - idx;
 
       const customIcon = L.divIcon({
         className: 'custom-gps-pin',
         html: `
-          <div class="relative group cursor-pointer transition-transform duration-200 ${isSelected || isThisAudioPlaying ? 'scale-125 z-50' : 'hover:scale-110'}">
+          <div class="relative group cursor-pointer transition-transform duration-150 ${isSelected || isThisAudioPlaying ? 'scale-125 z-50' : 'hover:scale-110'}">
             ${isThisAudioPlaying ? `
-              <div class="absolute -inset-2 bg-emerald-500/40 rounded-full animate-ping"></div>
-              <div class="absolute -inset-1 border-2 border-emerald-500 rounded-full animate-pulse"></div>
+              <div class="absolute -inset-2 bg-[#FF6B35]/40 animate-ping"></div>
+              <div class="absolute -inset-1 border-2 border-[#FF6B35] animate-pulse"></div>
             ` : ''}
-            <div class="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs text-white shadow-xl border-2 ${isThisAudioPlaying ? 'border-emerald-300 ring-4 ring-emerald-400' : 'border-white dark:border-slate-900'}" style="background-color: ${color};">
+            <div class="w-8 h-8 bg-[#172025] border-2 ${isSelected ? 'border-[#FF6B35] text-[#FF6B35]' : 'border-[#4A6B52] text-[#CFCFCF]'} flex items-center justify-center font-bold text-xs shadow-[2px_2px_0px_#000] font-mono">
               ${number}
             </div>
             ${point.audioDuration > 0 ? `
-              <div class="absolute -top-1 -right-1 w-5 h-5 ${isThisAudioPlaying ? 'bg-white text-emerald-700 animate-bounce' : 'bg-emerald-500 text-white'} border border-white dark:border-slate-900 rounded-full flex items-center justify-center text-[10px] font-bold shadow-md">
-                ${isThisAudioPlaying ? '🔊' : '🎙️'}
+              <div class="absolute -top-1.5 -right-1.5 px-1 py-0.2 bg-[#FF6B35] text-[#12181B] font-black text-[9px] border border-black shadow leading-tight">
+                REC
               </div>
             ` : ''}
           </div>
         `,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
-        popupAnchor: [0, -20],
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -18],
       });
 
       const marker = L.marker([point.coords.latitude, point.coords.longitude], {
@@ -330,31 +337,31 @@ export const MapViewer: React.FC<MapViewerProps> = ({
       const dateStr = new Date(point.timestamp).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 
       const popupContent = document.createElement('div');
-      popupContent.className = 'p-1 font-sans max-w-[280px]';
+      popupContent.className = 'p-2 font-mono max-w-[280px] bg-[#172025] text-[#CFCFCF] border border-[#4A6B52]';
       popupContent.innerHTML = `
-        <div class="flex items-center justify-between gap-2 border-b ${isLight ? 'border-slate-200 text-slate-900' : 'border-slate-700 text-white'} pb-2 mb-2">
-          <div class="font-extrabold text-sm truncate">${point.title || `Point #${number}`}</div>
-          <span class="text-[11px] px-2 py-0.5 rounded-md text-white shrink-0 font-bold" style="background-color: ${color}">
+        <div class="flex items-center justify-between gap-2 border-b border-[#2E3E47] pb-2 mb-2">
+          <div class="font-bold text-sm text-[#FF6B35] uppercase truncate">[WAYPOINT #${number}]</div>
+          <span class="text-[10px] px-1.5 py-0.5 bg-[#4A6B52] text-white font-bold uppercase">
             ${CATEGORY_LABELS[point.category] || point.category}
           </span>
         </div>
 
-        <div class="text-xs ${isLight ? 'text-slate-800 bg-slate-100 border-slate-200' : 'text-slate-200 bg-slate-800 border-slate-700'} mb-2.5 italic p-2.5 rounded-xl border leading-relaxed">
-          ${point.transcription ? `"${point.transcription}"` : '<span class="text-slate-400">Aucune note vocale</span>'}
+        <div class="text-xs text-[#CFCFCF] bg-[#12181B] border border-[#2E3E47] mb-2 p-2 leading-relaxed font-sans">
+          ${point.transcription ? `"${point.transcription}"` : '<span class="text-slate-500 italic">Aucune note vocale</span>'}
         </div>
 
-        <div class="grid grid-cols-2 gap-1.5 text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'} font-mono mb-2.5">
-          <div>🕒 ${dateStr} ${timeStr}</div>
-          <div class="font-bold ${isLight ? 'text-slate-800' : 'text-slate-200'}">🎯 ±${point.coords.accuracy.toFixed(1)} m</div>
-          ${point.coords.altitude !== null ? `<div>⛰️ ${point.coords.altitude.toFixed(0)} m alt.</div>` : ''}
-          ${point.audioDuration > 0 ? `<div class="text-emerald-600 dark:text-emerald-400 font-bold">🎙️ ${point.audioDuration}s audio</div>` : ''}
+        <div class="grid grid-cols-2 gap-1 text-[11px] text-[#8E9CA3] font-mono mb-2 border-t border-[#2E3E47] pt-1">
+          <div>LOC: ${dateStr} ${timeStr}</div>
+          <div class="text-[#FF6B35] font-bold">FIX: ±${point.coords.accuracy.toFixed(1)}m</div>
+          ${point.coords.altitude !== null ? `<div>ALT: ${point.coords.altitude.toFixed(0)}m</div>` : ''}
+          ${point.audioDuration > 0 ? `<div class="text-[#D1FF00] font-bold">AUDIO: ${point.audioDuration}s</div>` : ''}
         </div>
       `;
 
       if (point.audioBlob) {
         const audioBtn = document.createElement('button');
-        audioBtn.className = 'w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 cursor-pointer';
-        audioBtn.innerHTML = `<span>▶️ Rejouer le mémo vocal (${point.audioDuration}s)</span>`;
+        audioBtn.className = 'w-full py-2 px-3 bg-[#FF6B35] hover:bg-[#ff8252] text-black font-extrabold text-xs flex items-center justify-center gap-1.5 uppercase font-mono tracking-wider transition-all shadow active:translate-x-0.5 active:translate-y-0.5 cursor-pointer';
+        audioBtn.innerHTML = `<span>▶ ECOUTER MÉMO (${point.audioDuration}s)</span>`;
 
         audioBtn.onclick = (e) => {
           e.stopPropagation();
@@ -364,9 +371,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         popupContent.appendChild(audioBtn);
       }
 
-      marker.bindPopup(popupContent, {
-        className: isLight ? 'theme-light' : 'theme-dark',
-      });
+      marker.bindPopup(popupContent);
 
       marker.on('click', () => {
         if (onSelectPoint) {
@@ -378,57 +383,134 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         }
       });
     });
-  }, [points, selectedPointId, activeAudioPoint, isPlaying, autoPlayOnClick, isLight, onSelectPoint]);
+  }, [points, selectedPointId, activeAudioPoint, isPlaying, autoPlayOnClick, onSelectPoint]);
+
+  const handleZoomIn = () => {
+    mapInstanceRef.current?.zoomIn();
+  };
+
+  const handleZoomOut = () => {
+    mapInstanceRef.current?.zoomOut();
+  };
 
   const handleRecenter = () => {
     if (!mapInstanceRef.current || !currentLocation) return;
-    mapInstanceRef.current.flyTo([currentLocation.latitude, currentLocation.longitude], 17, {
-      duration: 1.2,
-    });
+    mapInstanceRef.current.setView([currentLocation.latitude, currentLocation.longitude], 17);
   };
 
   const handleFitAll = () => {
     if (!mapInstanceRef.current || points.length === 0) return;
-    const bounds = L.latLngBounds(points.map((p) => [p.coords.latitude, p.coords.longitude]));
-    if (currentLocation) {
-      bounds.extend([currentLocation.latitude, currentLocation.longitude]);
-    }
-    mapInstanceRef.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 17 });
+    const group = L.featureGroup(
+      points.map((p) => L.marker([p.coords.latitude, p.coords.longitude]))
+    );
+    mapInstanceRef.current.fitBounds(group.getBounds().pad(0.2));
   };
 
-  const effectiveDuration = duration || activeAudioPoint?.audioDuration || 1;
+  const effectiveDuration = duration || activeAudioPoint?.audioDuration || 0;
 
   return (
-    <div
-      className={`relative w-full h-full min-h-[400px] rounded-3xl overflow-hidden border shadow-md transition-colors ${
-        isLight
-          ? 'border-slate-300 bg-slate-100 shadow-slate-200'
-          : 'border-slate-800 bg-slate-950 shadow-slate-950'
-      }`}
-    >
+    <div className="relative w-full h-full min-h-[420px] rounded-none overflow-hidden border-2 border-[#4A6B52] bg-[#12181B] shadow-[4px_4px_0px_#000000]">
       <div ref={mapContainerRef} className="w-full h-full z-0" />
 
-      {/* Contrôles flottants sur la carte (Haut Droit) */}
-      <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+      {/* Réticules d'angle tactique HUD */}
+      <div className="absolute top-1 left-1 pointer-events-none z-10 text-[#4A6B52] font-mono text-xs select-none">
+        ┌─[TOPO-GRID]
+      </div>
+      <div className="absolute top-1 right-1 pointer-events-none z-10 text-[#4A6B52] font-mono text-xs select-none">
+        [TAC-ZONE]─┐
+      </div>
+      <div className="absolute bottom-1 left-1 pointer-events-none z-10 text-[#4A6B52] font-mono text-xs select-none">
+        └─[4A6B52]
+      </div>
+      <div className="absolute bottom-1 right-1 pointer-events-none z-10 text-[#4A6B52] font-mono text-xs select-none">
+        [#FF6B35]─┘
+      </div>
+
+      {/* Badge de statut GPS & Coordonnées tactiques (Haut Gauche) */}
+      <div className="absolute top-3 left-3 z-20 flex flex-col gap-1.5 pointer-events-auto">
+        <div className="bg-[#172025]/95 border-2 border-[#4A6B52] px-3 py-1.5 text-xs font-mono shadow-[2px_2px_0px_#000000] flex items-center gap-2">
+          <span className="w-2 h-2 rounded-none bg-[#FF6B35] animate-pulse"></span>
+          <span className="text-[#FF6B35] font-black uppercase">
+            {currentLocation ? 'GPS VERROUILLÉ' : 'RECHERCHE SATELLITES'}
+          </span>
+          {currentLocation && (
+            <span className="text-[#CFCFCF] font-bold">
+              ±{currentLocation.accuracy.toFixed(1)}m
+            </span>
+          )}
+        </div>
+
+        {currentLocation && (
+          <div className="hidden sm:block bg-[#12181B]/95 border border-[#2E3E47] px-2.5 py-1 text-[11px] font-mono text-[#8E9CA3] shadow">
+            <span>{currentLocation.latitude.toFixed(6)}°N, {currentLocation.longitude.toFixed(6)}°E</span>
+            {currentLocation.altitude !== null && (
+              <span className="text-[#D1FF00] ml-2 font-bold">ALT {currentLocation.altitude.toFixed(0)}m</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Contrôles tactiques imposants, carrés et robustes (Haut Droit) */}
+      <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
+        {/* Zoom In (+) */}
+        <button
+          onClick={handleZoomIn}
+          id="btn-map-zoom-in"
+          type="button"
+          className="w-11 h-11 bg-[#172025] hover:bg-[#4A6B52] text-[#CFCFCF] hover:text-white border-2 border-[#4A6B52] font-mono font-black text-xl shadow-[2px_2px_0px_#000000] flex items-center justify-center transition-all active:translate-x-0.5 active:translate-y-0.5"
+          title="Zoomer avant (+)"
+        >
+          +
+        </button>
+
+        {/* Zoom Out (-) */}
+        <button
+          onClick={handleZoomOut}
+          id="btn-map-zoom-out"
+          type="button"
+          className="w-11 h-11 bg-[#172025] hover:bg-[#4A6B52] text-[#CFCFCF] hover:text-white border-2 border-[#4A6B52] font-mono font-black text-xl shadow-[2px_2px_0px_#000000] flex items-center justify-center transition-all active:translate-x-0.5 active:translate-y-0.5"
+          title="Dézoomer (-)"
+        >
+          -
+        </button>
+
+        {/* Centrer sur GPS courant */}
+        <button
+          onClick={handleRecenter}
+          id="btn-map-center-gps"
+          type="button"
+          disabled={!currentLocation}
+          className="w-11 h-11 bg-[#172025] hover:bg-[#FF6B35] text-[#FF6B35] hover:text-black border-2 border-[#FF6B35] shadow-[2px_2px_0px_#000000] flex items-center justify-center transition-all active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-40"
+          title="Centrer la vue sur ma position GPS"
+        >
+          <Navigation className="w-5 h-5 fill-current" />
+        </button>
+
+        {/* Vue globale / Fit tous les points */}
+        <button
+          onClick={handleFitAll}
+          id="btn-map-fit-all"
+          type="button"
+          disabled={points.length === 0}
+          className="w-11 h-11 bg-[#172025] hover:bg-[#4A6B52] text-[#CFCFCF] hover:text-white border-2 border-[#4A6B52] shadow-[2px_2px_0px_#000000] flex items-center justify-center transition-all active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-40"
+          title="Recadrer sur l'ensemble des balises"
+        >
+          <Crosshair className="w-5 h-5" />
+        </button>
+
         {/* Toggle Lecture Vocale Directe au Clic */}
         <button
           onClick={() => setAutoPlayOnClick(!autoPlayOnClick)}
           id="btn-toggle-map-autoplay"
           type="button"
-          className={`p-3 rounded-2xl border shadow-md backdrop-blur-md transition-all active:scale-95 flex items-center justify-center ${
+          className={`w-11 h-11 border-2 font-mono shadow-[2px_2px_0px_#000000] flex items-center justify-center transition-all active:translate-x-0.5 active:translate-y-0.5 ${
             autoPlayOnClick
-              ? 'bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-500'
-              : isLight
-              ? 'bg-white/95 text-slate-500 border-slate-300 hover:bg-white'
-              : 'bg-slate-900/90 text-slate-400 border-slate-700 hover:bg-slate-800'
+              ? 'bg-[#4A6B52] text-white border-[#707B71]'
+              : 'bg-[#172025] text-slate-500 border-[#2E3E47]'
           }`}
-          title={
-            autoPlayOnClick
-              ? 'Lecture vocale automatique au clic : ACTIVÉE (cliquez pour désactiver)'
-              : 'Lecture vocale automatique au clic : DÉSACTIVÉE (cliquez pour activer)'
-          }
+          title={autoPlayOnClick ? 'Lecture audio au clic : ACTIVÉE' : 'Lecture audio au clic : COUPÉE'}
         >
-          {autoPlayOnClick ? <Volume2 className="w-5 h-5 text-white" /> : <VolumeX className="w-5 h-5" />}
+          {autoPlayOnClick ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
         </button>
 
         {/* Sélecteur de fonds de carte */}
@@ -437,24 +519,16 @@ export const MapViewer: React.FC<MapViewerProps> = ({
             onClick={() => setShowLayerMenu(!showLayerMenu)}
             id="btn-map-layers"
             type="button"
-            className={`p-3 rounded-2xl border shadow-md backdrop-blur-md transition-all active:scale-95 ${
-              isLight
-                ? 'bg-white/95 hover:bg-white text-slate-800 border-slate-300'
-                : 'bg-slate-900/90 hover:bg-slate-800 text-slate-200 border-slate-700'
-            }`}
-            title="Changer de fond de carte"
+            className="w-11 h-11 bg-[#172025] hover:bg-[#4A6B52] text-[#CFCFCF] hover:text-white border-2 border-[#4A6B52] shadow-[2px_2px_0px_#000000] flex items-center justify-center transition-all active:translate-x-0.5 active:translate-y-0.5"
+            title="Changer de couche topographique"
           >
-            <Layers className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <Layers className="w-5 h-5" />
           </button>
 
           {showLayerMenu && (
-            <div
-              className={`absolute right-0 mt-2 w-52 border rounded-2xl shadow-2xl backdrop-blur-md p-2 space-y-1 z-30 ${
-                isLight ? 'bg-white/98 border-slate-300' : 'bg-slate-900/95 border-slate-700'
-              }`}
-            >
-              <div className="text-[11px] font-bold tracking-wider text-slate-500 uppercase px-2 py-1">
-                Fonds de carte
+            <div className="absolute right-0 mt-2 w-64 bg-[#172025] border-2 border-[#4A6B52] shadow-[4px_4px_0px_#000000] p-2 space-y-1 z-30 font-mono">
+              <div className="text-[10px] font-bold tracking-widest text-[#FF6B35] uppercase px-2 py-1 border-b border-[#2E3E47]">
+                COUCHES TOPOGRAPHIQUES
               </div>
               {(Object.keys(TILE_LAYERS) as Array<keyof typeof TILE_LAYERS>).map((key) => (
                 <button
@@ -465,12 +539,10 @@ export const MapViewer: React.FC<MapViewerProps> = ({
                   }}
                   id={`btn-tile-${key}`}
                   type="button"
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                  className={`w-full text-left px-3 py-2 text-xs font-bold font-mono uppercase transition-colors ${
                     activeLayer === key
-                      ? 'bg-emerald-600 text-white'
-                      : isLight
-                      ? 'text-slate-800 hover:bg-slate-100'
-                      : 'text-slate-300 hover:bg-slate-800'
+                      ? 'bg-[#4A6B52] text-white border-l-4 border-[#FF6B35]'
+                      : 'text-[#CFCFCF] hover:bg-[#1F2B32]'
                   }`}
                 >
                   {TILE_LAYERS[key].name}
@@ -479,60 +551,22 @@ export const MapViewer: React.FC<MapViewerProps> = ({
             </div>
           )}
         </div>
-
-        {/* Centrer sur GPS courant */}
-        <button
-          onClick={handleRecenter}
-          id="btn-map-center-gps"
-          type="button"
-          disabled={!currentLocation}
-          className={`p-3 rounded-2xl border shadow-md backdrop-blur-md transition-all active:scale-95 disabled:opacity-50 ${
-            isLight
-              ? 'bg-white/95 hover:bg-white text-blue-600 border-slate-300'
-              : 'bg-slate-900/90 hover:bg-slate-800 text-blue-400 border-slate-700'
-          }`}
-          title="Centrer sur ma position GPS"
-        >
-          <Navigation className="w-5 h-5 fill-current" />
-        </button>
-
-        {/* Vue globale de tous les points */}
-        <button
-          onClick={handleFitAll}
-          id="btn-map-fit-all"
-          type="button"
-          disabled={points.length === 0}
-          className={`p-3 rounded-2xl border shadow-md backdrop-blur-md transition-all active:scale-95 disabled:opacity-50 ${
-            isLight
-              ? 'bg-white/95 hover:bg-white text-amber-600 border-slate-300'
-              : 'bg-slate-900/90 hover:bg-slate-800 text-amber-400 border-slate-700'
-          }`}
-          title="Voir tous les points"
-        >
-          <Crosshair className="w-5 h-5" />
-        </button>
       </div>
 
-      {/* Lecteur Audio Flottant sur la carte */}
+      {/* Lecteur Audio Flottant Tactique sur la carte */}
       {activeAudioPoint && (
-        <div
-          className={`absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-30 border-2 rounded-3xl p-4 shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom duration-200 ${
-            isLight
-              ? 'bg-white/98 border-emerald-600 text-slate-900 shadow-slate-400/30'
-              : 'bg-slate-900/95 border-emerald-500/80 text-white shadow-black/80'
-          }`}
-        >
+        <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-30 border-2 border-[#FF6B35] bg-[#172025] p-4 shadow-[4px_4px_0px_#000000] text-[#CFCFCF] font-mono animate-in slide-in-from-bottom duration-150">
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="p-2 rounded-xl bg-emerald-600 text-white font-bold shrink-0">
+              <div className="p-2 bg-[#FF6B35] text-black font-black shrink-0">
                 <Volume2 className="w-4 h-4 animate-pulse" />
               </div>
               <div className="truncate">
-                <div className="text-sm font-extrabold truncate">
-                  {activeAudioPoint.title || 'Note vocale GPS'}
+                <div className="text-sm font-extrabold text-white uppercase truncate">
+                  {activeAudioPoint.title || 'MÉMO VOCAL'}
                 </div>
-                <div className="text-xs text-emerald-600 dark:text-emerald-400 font-mono font-bold">
-                  Lecture audio en direct
+                <div className="text-xs text-[#FF6B35] font-bold">
+                  COMMUNICATION RADIO EN LECTURE
                 </div>
               </div>
             </div>
@@ -541,18 +575,14 @@ export const MapViewer: React.FC<MapViewerProps> = ({
               onClick={stopAudio}
               id="btn-close-map-audio"
               type="button"
-              className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-full hover:bg-slate-200 dark:hover:bg-slate-800"
+              className="p-1 text-[#8E9CA3] hover:text-white hover:bg-[#2E3E47]"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {activeAudioPoint.transcription && (
-            <p
-              className={`text-xs italic line-clamp-2 p-2.5 rounded-xl border mb-3 leading-relaxed ${
-                isLight ? 'bg-slate-100 text-slate-800 border-slate-200' : 'bg-slate-950 text-slate-200 border-slate-800'
-              }`}
-            >
+            <p className="text-xs text-[#CFCFCF] bg-[#12181B] border border-[#2E3E47] p-2.5 mb-3 leading-relaxed font-sans italic">
               "{activeAudioPoint.transcription}"
             </p>
           )}
@@ -563,7 +593,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
               onClick={() => playPointAudio(activeAudioPoint)}
               id="btn-map-player-toggle"
               type="button"
-              className="p-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-transform active:scale-95 shadow-md shrink-0"
+              className="p-2.5 bg-[#FF6B35] hover:bg-[#ff8252] text-black font-bold transition-transform active:scale-95 shadow shrink-0"
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
             </button>
@@ -576,9 +606,9 @@ export const MapViewer: React.FC<MapViewerProps> = ({
                 step="0.05"
                 value={currentTime}
                 onChange={handleSeek}
-                className="w-full h-2 bg-slate-300 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                className="w-full h-2 bg-[#12181B] rounded-none appearance-none cursor-pointer accent-[#FF6B35]"
               />
-              <div className="flex justify-between text-xs font-mono font-bold text-slate-600 dark:text-slate-400">
+              <div className="flex justify-between text-xs font-mono font-bold text-[#8E9CA3]">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(effectiveDuration)}</span>
               </div>
@@ -588,7 +618,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
               onClick={toggleSpeed}
               id="btn-map-player-speed"
               type="button"
-              className="text-xs font-mono font-bold px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg border border-slate-300 dark:border-slate-700 transition-colors"
+              className="text-xs font-mono font-bold px-2 py-1 bg-[#12181B] hover:bg-[#2E3E47] text-[#FF6B35] border border-[#4A6B52]"
             >
               {playbackRate}x
             </button>
@@ -598,35 +628,17 @@ export const MapViewer: React.FC<MapViewerProps> = ({
 
       {/* Légende en bas à gauche de la carte */}
       {!activeAudioPoint && (
-        <div
-          className={`absolute bottom-4 left-4 z-20 backdrop-blur-md border rounded-2xl px-3.5 py-2 text-xs shadow-md hidden sm:flex items-center gap-3 ${
-            isLight ? 'bg-white/95 border-slate-300 text-slate-800' : 'bg-slate-900/90 border-slate-800 text-slate-300'
-          }`}
-        >
-          <span className="font-bold">Points :</span>
-          <div className="flex items-center gap-3">
-            {Object.entries(CATEGORY_COLORS).slice(0, 4).map(([key, col]) => (
-              <div key={key} className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-full shadow-xs" style={{ backgroundColor: col }} />
-                <span className="text-xs font-semibold">{CATEGORY_LABELS[key]}</span>
-              </div>
-            ))}
+        <div className="absolute bottom-3 left-3 z-20 bg-[#172025]/95 border-2 border-[#4A6B52] px-3 py-1.5 text-xs font-mono shadow-[2px_2px_0px_#000000] hidden sm:flex items-center gap-3 text-[#CFCFCF]">
+          <span className="font-bold text-[#FF6B35]">TRACÉ:</span>
+          <div className="flex items-center gap-1.5">
+            <span className="w-4 h-1 bg-[#FF6B35]" />
+            <span className="text-[11px]">ORANGE SÉCURITÉ</span>
           </div>
-        </div>
-      )}
-
-      {/* Badge de statut GPS flottant en haut à gauche */}
-      {currentLocation && (
-        <div
-          className={`absolute top-4 left-4 z-20 backdrop-blur-md border rounded-2xl px-3.5 py-2 shadow-md flex items-center gap-2 text-xs font-mono font-bold ${
-            isLight ? 'bg-white/95 border-slate-300 text-slate-900' : 'bg-slate-900/90 border-slate-800 text-slate-200'
-          }`}
-        >
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>{formatGpsCoords(currentLocation.latitude, currentLocation.longitude)}</span>
-          <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">
-            ±{currentLocation.accuracy.toFixed(1)}m
-          </span>
+          <span className="text-slate-600">|</span>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 bg-[#4A6B52] border border-[#707B71]" />
+            <span className="text-[11px]">BALISES MISSION</span>
+          </div>
         </div>
       )}
     </div>

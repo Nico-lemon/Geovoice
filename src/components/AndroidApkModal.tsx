@@ -11,6 +11,8 @@ import {
   ShieldCheck,
   HelpCircle,
   Layers,
+  Zap,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface AndroidApkModalProps {
@@ -30,6 +32,7 @@ export const AndroidApkModal: React.FC<AndroidApkModalProps> = ({
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [copiedDesc, setCopiedDesc] = useState(false);
   const [copiedManifest, setCopiedManifest] = useState(false);
+  const [copiedJava, setCopiedJava] = useState(false);
 
   if (!isOpen) return null;
 
@@ -57,6 +60,43 @@ export const AndroidApkModal: React.FC<AndroidApkModalProps> = ({
       { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
     ]
   }, null, 2);
+
+  const mainActivityJavaCode = `package com.geovoice.gpsaudio;
+
+import android.os.Bundle;
+import android.view.KeyEvent;
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int action = event.getAction();
+        int keyCode = event.getKeyCode();
+
+        if (action == KeyEvent.ACTION_DOWN) {
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                // Intercepte le bouton Volume + et déclenche GeoVoice
+                if (this.bridge != null && this.bridge.getWebView() != null) {
+                    this.bridge.getWebView().evaluateJavascript(
+                        "window.dispatchEvent(new CustomEvent('nativeVolumeTrigger', { detail: { direction: 'up', keyCode: 24 } }));",
+                        null
+                    );
+                }
+                return true; // Bloque la modification du son et le curseur Android
+            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                // Intercepte le bouton Volume - et déclenche GeoVoice
+                if (this.bridge != null && this.bridge.getWebView() != null) {
+                    this.bridge.getWebView().evaluateJavascript(
+                        "window.dispatchEvent(new CustomEvent('nativeVolumeTrigger', { detail: { direction: 'down', keyCode: 25 } }));",
+                        null
+                    );
+                }
+                return true; // Bloque la modification du son et le curseur Android
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+}`;
 
   // URL de PWABuilder pré-remplie avec le domaine de l'application
   const pwaBuilderUrl = `https://www.pwabuilder.com/reportcard?site=${encodeURIComponent(currentOrigin)}`;
@@ -372,6 +412,32 @@ export const AndroidApkModal: React.FC<AndroidApkModalProps> = ({
                 <p className="font-medium">
                   Allez dans le menu <strong>Build &gt; Build Bundle(s) / APK(s) &gt; Build APK(s)</strong>. Le fichier <code>app-debug.apk</code> ou <code>app-release.apk</code> sera généré dans <code>android/app/build/outputs/apk/</code>.
                 </p>
+              </div>
+
+              {/* SECTION SPÉCIALE BOUTONS VOLUME DANS L'APK */}
+              <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-800 text-xs space-y-2.5">
+                <div className="flex items-center gap-2 font-black text-amber-900 dark:text-amber-200">
+                  <Zap className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span>Activer la capture matérielle des boutons Volume (+ / -) dans l'APK</span>
+                </div>
+                <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                  Contrairement à Chrome qui bloque les touches volume, l'APK Android a un accès système complet (<code className="bg-amber-100 dark:bg-amber-900/60 px-1 py-0.5 rounded text-amber-900 dark:text-amber-200 font-bold">KEYCODE_VOLUME_UP / DOWN</code>). Remplacez le fichier <code className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded">android/app/src/main/java/com/geovoice/gpsaudio/MainActivity.java</code> par le code ci-dessous :
+                </p>
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <span className="font-mono text-[11px] text-slate-500 truncate">MainActivity.java (interception des touches de volume)</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(mainActivityJavaCode);
+                      setCopiedJava(true);
+                      setTimeout(() => setCopiedJava(false), 2000);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 shrink-0"
+                  >
+                    {copiedJava ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedJava ? 'Code Java copié !' : 'Copier MainActivity.java'}</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}

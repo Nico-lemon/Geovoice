@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { BluetoothConfig, AudioFeedbackSettings } from '../types';
-import { bluetoothService } from '../services/bluetoothTrigger';
+import { BluetoothConfig, AudioFeedbackSettings, VolumeTriggerMode } from '../types';
+import { bluetoothService, TriggerEventInfo } from '../services/bluetoothTrigger';
 import { audioFeedback } from '../services/audioFeedback';
 import {
   X,
   Bluetooth,
   Radio,
   Volume2,
+  VolumeX,
   Vibrate,
-  Mic,
   CheckCircle2,
   AlertTriangle,
   Sparkles,
   Smartphone,
   Info,
+  Sliders,
+  Volume1,
+  Activity,
+  ShieldCheck,
+  Zap
 } from 'lucide-react';
 
 interface BluetoothConfigModalProps {
@@ -22,6 +27,7 @@ interface BluetoothConfigModalProps {
   onUpdateConfig: (newConfig: Partial<BluetoothConfig>) => void;
   onUpdateAudioSettings: (newSettings: Partial<AudioFeedbackSettings>) => void;
   onClose: () => void;
+  onOpenAndroidModal?: () => void;
 }
 
 export const BluetoothConfigModal: React.FC<BluetoothConfigModalProps> = ({
@@ -30,19 +36,30 @@ export const BluetoothConfigModal: React.FC<BluetoothConfigModalProps> = ({
   onUpdateConfig,
   onUpdateAudioSettings,
   onClose,
+  onOpenAndroidModal,
 }) => {
   const [isScanningBle, setIsScanningBle] = useState(false);
-  const [lastDetectedTestKey, setLastDetectedTestKey] = useState<string | null>(null);
+  const [lastEvent, setLastEvent] = useState<TriggerEventInfo | null>(null);
   const [bleError, setBleError] = useState<string | null>(null);
+  const [testCount, setTestCount] = useState(0);
 
-  // Écouter les appuis pour le testeur interactif
+  // Écouter les appuis réels pour le banc de test
   useEffect(() => {
-    const unsubscribe = bluetoothService.onTrigger((source) => {
-      setLastDetectedTestKey(source);
+    const unsubscribe = bluetoothService.onTrigger((source, info) => {
+      setLastEvent(
+        info || {
+          source,
+          isVolume: source.toLowerCase().includes('volume'),
+          timestamp: Date.now()
+        }
+      );
+      setTestCount((c) => c + 1);
+
+      // Bip de confirmation sonore
       audioFeedback.playRecordStart(audioSettings);
       setTimeout(() => {
         audioFeedback.playRecordStop(audioSettings);
-      }, 400);
+      }, 300);
     });
 
     return () => {
@@ -78,25 +95,40 @@ export const BluetoothConfigModal: React.FC<BluetoothConfigModalProps> = ({
     });
   };
 
-  const handleSimulateClick = () => {
-    bluetoothService.triggerManual('Bouton de test');
+  const handleSimulateVolumeUp = () => {
+    bluetoothService.triggerManual('Déclencheur Bluetooth (Volume +)', true, 'up');
   };
 
+  const handleSimulateVolumeDown = () => {
+    bluetoothService.triggerManual('Déclencheur Bluetooth (Volume -)', true, 'down');
+  };
+
+  const handleSimulateShutter = () => {
+    bluetoothService.triggerManual('Bouton Shutter (Enter)', false);
+  };
+
+  const currentFilter: VolumeTriggerMode = config.volumeTriggerMode || 'both';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-3xl max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100">
-        {/* En-tête */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150 font-mono">
+      <div className="bg-[#172025] border-2 border-[#4A6B52] max-w-2xl w-full max-h-[92vh] flex flex-col shadow-[8px_8px_0px_#000000] overflow-hidden text-[#CFCFCF]">
+        {/* En-tête tactique */}
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b-2 border-[#4A6B52] bg-[#12181B]">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
+            <div className="w-10 h-10 bg-[#172025] border-2 border-[#4A6B52] text-[#FF6B35] flex items-center justify-center shadow-[2px_2px_0px_#000000] font-black shrink-0">
               <Bluetooth className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-slate-100">
-                Configuration Déclencheur Bluetooth
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Paramétrez vos boutons physiques pour l'usage direct en poche
+              <div className="flex items-center gap-2">
+                <h3 className="font-black text-base sm:text-lg text-white uppercase tracking-wider font-tech">
+                  DÉCLENCHEUR BLUETOOTH & VOLUME
+                </h3>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 bg-[#4A6B52] text-white border border-[#707B71]">
+                  VOL +/-
+                </span>
+              </div>
+              <p className="text-xs text-[#8E9CA3]">
+                Télécommandes selfie, boutons volume et casques audio en poche
               </p>
             </div>
           </div>
@@ -105,146 +137,300 @@ export const BluetoothConfigModal: React.FC<BluetoothConfigModalProps> = ({
             onClick={onClose}
             id="btn-close-bt-modal"
             type="button"
-            className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+            className="w-8 h-8 flex items-center justify-center border-2 border-[#4A6B52] bg-[#172025] hover:bg-[#FF6B35] hover:text-black hover:border-black text-[#CFCFCF] transition-colors shadow-[2px_2px_0px_#000000] cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 stroke-[2.5]" />
           </button>
         </div>
 
         {/* Contenu avec défilement */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs sm:text-sm">
-          {/* Section 1 : Guide rapide de fonctionnement */}
-          <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-500/30 rounded-2xl p-4 space-y-2.5">
-            <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-300">
-              <Sparkles className="w-4 h-4" />
-              <span>Comment utiliser un bouton Bluetooth en poche ?</span>
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 text-xs sm:text-sm">
+          {/* SECTION CRITIQUE : Explication claire sur l'effet Volume */}
+          <div className="bg-[#12181B] border-2 border-[#FF6B35] p-4 shadow-[4px_4px_0px_#000000] space-y-3">
+            <div className="flex items-start gap-2.5">
+              <Info className="w-5 h-5 text-[#FF6B35] shrink-0 mt-0.5" />
+              <div className="space-y-1.5">
+                <h4 className="font-black text-white uppercase tracking-wider text-sm flex items-center gap-2">
+                  <span>POURQUOI LE BOUTON MODIFIE LE VOLUME DU TÉLÉPHONE ?</span>
+                  <span className="text-[10px] bg-[#FF6B35] text-black px-1.5 py-0.2 font-mono font-bold">
+                    INFO TECHNIQUE
+                  </span>
+                </h4>
+                <p className="text-xs text-[#CFCFCF] leading-relaxed">
+                  Votre télécommande Bluetooth (shutter selfie, bouton guidon, commande d'écouteurs)
+                  est conçue comme un mini-clavier émettant les touches matérielles{' '}
+                  <strong className="text-white font-black underline decoration-[#FF6B35]">
+                    VOLUME HAUT (+)
+                  </strong>{' '}
+                  ou{' '}
+                  <strong className="text-white font-black underline decoration-[#FF6B35]">
+                    VOLUME BAS (-)
+                  </strong>
+                  . Les smartphones utilisent ces touches pour déclencher la photo dans l'appareil photo natif.
+                </p>
+                <div className="bg-[#172025] border border-[#4A6B52] p-3 text-[11px] text-[#D1FF00] space-y-2">
+                  <div className="font-bold flex items-center gap-1.5 text-amber-300">
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>DIFFÉRENCE IMPORTANTE : NAVIGATEUR CHROME vs APPLICATION APK NATIVE</span>
+                  </div>
+                  <p className="text-[#CFCFCF] leading-relaxed">
+                    <strong>1. Dans le navigateur Chrome Mobile :</strong> Android bloque par mesure de sécurité l'accès direct aux touches de volume physique pour les pages web afin d'éviter le piratage du son. La barre de volume bouge, mais le navigateur ne transmet pas l'événement au site.
+                  </p>
+                  <p className="text-[#CFCFCF] leading-relaxed">
+                    <strong>2. En version APK installée (Application Android) :</strong> L'application a un accès matériel complet à l'OS Android (<code className="text-[#D1FF00] bg-black px-1">KEYCODE_VOLUME_UP</code>). Elle intercepte le bouton physique sans même afficher la barre de volume et peut fonctionner écran éteint dans votre poche !
+                  </p>
+                  {onOpenAndroidModal && (
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={onOpenAndroidModal}
+                        className="w-full py-2 px-3 bg-[#4A6B52] hover:bg-[#D1FF00] hover:text-black text-white font-bold text-xs uppercase border border-[#707B71] transition-all flex items-center justify-center gap-2 shadow-[2px_2px_0px_#000000] cursor-pointer"
+                      >
+                        <Smartphone className="w-4 h-4" />
+                        <span>GÉNÉRER L'APPLICATION ANDROID (FICHIER APK)</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-            <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
-              Vous pouvez appairer n'importe quel déclencheur Bluetooth à votre téléphone :
-            </p>
-            <ul className="list-disc list-inside space-y-1.5 text-slate-800 dark:text-slate-200 font-semibold ml-1">
-              <li><strong>Télécommande selfie Bluetooth</strong> (déclencheur universel à 3€)</li>
-              <li><strong>Bouton d'écouteurs / casque audio</strong> (Play/Pause ou Volume)</li>
-              <li><strong>Bouton guidon vélo / télécommande volant</strong></li>
-              <li><strong>Bouton connecté BLE</strong> (Flic, iTag, etc.)</li>
-            </ul>
           </div>
 
-          {/* Section 2 : Testeur de bouton en direct */}
-          <div className="bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-2xl p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <Radio className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span>Testeur de déclencheur en direct</span>
-              </div>
-              <button
-                type="button"
-                onClick={handleSimulateClick}
-                id="btn-simulate-trigger"
-                className="px-3 py-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold border border-slate-300 dark:border-slate-700 transition-colors shadow-xs"
-              >
-                Simuler un appui
-              </button>
-            </div>
-
-            <p className="text-slate-600 dark:text-slate-400 font-medium">
-              Appuyez maintenant sur votre bouton Bluetooth. Le voyant ci-dessous s'illuminera et émettra un bip de confirmation.
-            </p>
-
-            <div
-              className={`p-4 rounded-xl border flex items-center justify-between transition-all ${
-                lastDetectedTestKey
-                  ? 'bg-emerald-100 dark:bg-emerald-950/60 border-emerald-500 text-emerald-900 dark:text-emerald-200'
-                  : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-400'
-              }`}
-            >
-              <div className="flex items-center gap-3 font-mono font-bold">
-                <div
-                  className={`w-4 h-4 rounded-full ${
-                    lastDetectedTestKey
-                      ? 'bg-emerald-500 animate-ping'
-                      : 'bg-slate-400 dark:bg-slate-600'
-                  }`}
-                />
-                <span>
-                  {lastDetectedTestKey
-                    ? `DÉTECTÉ : ${lastDetectedTestKey}`
-                    : 'En attente d’un appui sur votre bouton...'}
+          {/* BANC D'ESSAI EN TEMPS RÉEL (TESTEUR DE TOUCHES) */}
+          <div className="bg-[#12181B] border-2 border-[#4A6B52] p-4 shadow-[4px_4px_0px_#000000] space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#2E3E47] pb-2.5">
+              <div className="flex items-center gap-2">
+                <Radio className="w-4 h-4 text-[#FF6B35] animate-pulse" />
+                <span className="font-black text-white uppercase text-xs sm:text-sm tracking-wider">
+                  BANC DE TEST EN DIRECT // VÉRIFICATION SIGNAL
                 </span>
               </div>
-              {lastDetectedTestKey && (
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-[10px] text-[#8E9CA3]">
+                {testCount > 0 ? `${testCount} impulsion(s) reçue(s)` : 'En attente de signal'}
+              </span>
+            </div>
+
+            <p className="text-xs text-[#8E9CA3]">
+              Appuyez sur votre bouton Bluetooth physique ou les touches de volume de votre téléphone.
+              Le voyant réagira instantanément avec un double signal sonore.
+            </p>
+
+            {/* Console de retour visuel */}
+            <div
+              className={`p-3.5 border-2 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                lastEvent
+                  ? 'bg-[#172025] border-[#D1FF00] text-white shadow-[2px_2px_0px_#000000]'
+                  : 'bg-[#12181B] border-[#2E3E47] text-[#8E9CA3]'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-4 h-4 border-2 shrink-0 ${
+                    lastEvent
+                      ? 'bg-[#D1FF00] border-black animate-ping'
+                      : 'bg-[#2E3E47] border-[#707B71]'
+                  }`}
+                />
+                <div>
+                  <div className="font-mono font-black text-xs sm:text-sm flex items-center gap-2">
+                    {lastEvent ? (
+                      <>
+                        <span className="text-[#D1FF00] uppercase">SIGNAL CAPTÉ :</span>
+                        <span className="text-white bg-[#12181B] px-2 py-0.5 border border-[#4A6B52]">
+                          {lastEvent.source}
+                        </span>
+                      </>
+                    ) : (
+                      <span>CLIQUEZ SUR VOTRE TÉLÉCOMMANDE OU TOUCHE VOLUME...</span>
+                    )}
+                  </div>
+                  {lastEvent && (
+                    <div className="text-[11px] text-[#8E9CA3] mt-0.5">
+                      Code brut : {lastEvent.rawKey || 'N/A'} • Type :{' '}
+                      {lastEvent.isVolume ? 'TOUCHE VOLUME' : 'TOUCHE BLUETOOTH'}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {lastEvent && (
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#D1FF00] bg-[#12181B] px-2.5 py-1 border border-[#D1FF00] self-start sm:self-auto">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>OPÉRATIONNEL</span>
+                </div>
               )}
+            </div>
+
+            {/* Boutons de simulation pour tester immédiatement dans le navigateur */}
+            <div className="pt-1 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold text-[#8E9CA3]">TEST MANUEL :</span>
+              <button
+                type="button"
+                onClick={handleSimulateVolumeUp}
+                id="btn-test-vol-up"
+                className="px-2.5 py-1 bg-[#172025] hover:bg-[#4A6B52] text-white border border-[#4A6B52] hover:border-white text-xs font-bold uppercase transition-all shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer flex items-center gap-1.5"
+              >
+                <Volume2 className="w-3.5 h-3.5 text-[#FF6B35]" />
+                <span>Simuler Volume +</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleSimulateVolumeDown}
+                id="btn-test-vol-down"
+                className="px-2.5 py-1 bg-[#172025] hover:bg-[#4A6B52] text-white border border-[#4A6B52] hover:border-white text-xs font-bold uppercase transition-all shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer flex items-center gap-1.5"
+              >
+                <Volume1 className="w-3.5 h-3.5 text-[#FF6B35]" />
+                <span>Simuler Volume -</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleSimulateShutter}
+                id="btn-test-shutter"
+                className="px-2.5 py-1 bg-[#172025] hover:bg-[#4A6B52] text-white border border-[#4A6B52] hover:border-white text-xs font-bold uppercase transition-all shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer flex items-center gap-1.5"
+              >
+                <Zap className="w-3.5 h-3.5 text-[#D1FF00]" />
+                <span>Simuler Shutter</span>
+              </button>
             </div>
           </div>
 
-          {/* Section 3 : Comportement de la commande vocale */}
-          <div className="space-y-3">
-            <h4 className="font-extrabold text-slate-900 dark:text-slate-100">
-              Comportement lors de l'appui sur le bouton
+          {/* FILTRE ET CONFIGURATION DES TOUCHES VOLUME */}
+          <div className="bg-[#12181B] border-2 border-[#4A6B52] p-4 shadow-[4px_4px_0px_#000000] space-y-3">
+            <div className="flex items-center gap-2 border-b border-[#2E3E47] pb-2">
+              <Sliders className="w-4 h-4 text-[#4A6B52]" />
+              <h4 className="font-black text-white uppercase text-xs sm:text-sm tracking-wider">
+                SÉLECTEUR DE TOUCHES VOLUME ACTIVES
+              </h4>
+            </div>
+
+            <p className="text-xs text-[#8E9CA3]">
+              Choisissez quelles touches de volume de votre télécommande ou de votre smartphone doivent déclencher la capture GPS :
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {[
+                {
+                  id: 'both',
+                  title: 'VOL + & VOL - (LES DEUX)',
+                  desc: 'Recommandé. N’importe quel bouton de la télécommande déclenche.',
+                  icon: Volume2,
+                },
+                {
+                  id: 'upOnly',
+                  title: 'VOLUME + UNIQUEMENT',
+                  desc: 'Ignore les appuis Volume - (évite les conflits avec le son).',
+                  icon: Volume2,
+                },
+                {
+                  id: 'downOnly',
+                  title: 'VOLUME - UNIQUEMENT',
+                  desc: 'Ignore les appuis Volume +.',
+                  icon: Volume1,
+                },
+              ].map((opt) => {
+                const isSelected = currentFilter === opt.id;
+                const IconComp = opt.icon;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => onUpdateConfig({ volumeTriggerMode: opt.id as VolumeTriggerMode })}
+                    className={`p-3 border-2 text-left transition-all cursor-pointer shadow-[2px_2px_0px_#000000] flex flex-col justify-between ${
+                      isSelected
+                        ? 'bg-[#172025] border-[#FF6B35] text-white ring-1 ring-[#FF6B35]'
+                        : 'bg-[#12181B] border-[#2E3E47] text-[#8E9CA3] hover:border-[#4A6B52]'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5 font-black text-xs uppercase mb-1">
+                        <IconComp
+                          className={`w-3.5 h-3.5 ${
+                            isSelected ? 'text-[#FF6B35]' : 'text-[#8E9CA3]'
+                          }`}
+                        />
+                        <span className={isSelected ? 'text-white' : 'text-[#CFCFCF]'}>
+                          {opt.title}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#8E9CA3] leading-snug">{opt.desc}</p>
+                    </div>
+                    {isSelected && (
+                      <span className="text-[9px] font-black text-[#FF6B35] uppercase mt-2 tracking-wider">
+                        [SÉLECTIONNÉ]
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* COMPORTEMENT D'ENREGISTREMENT LORS DE L'APPUI */}
+          <div className="bg-[#12181B] border-2 border-[#4A6B52] p-4 shadow-[4px_4px_0px_#000000] space-y-3">
+            <h4 className="font-black text-white uppercase text-xs sm:text-sm tracking-wider border-b border-[#2E3E47] pb-2">
+              COMPORTEMENT LORS DU CLIC PHYSIQUE
             </h4>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {[
                 {
                   id: 'toggle',
-                  title: '1er appui = Début / 2e = Fin',
-                  desc: 'Idéal pour les mémos de longueur variable sans garder le doigt appuyé.',
+                  title: '1er appui = DÉBUT / 2e = FIN',
+                  desc: 'Mode standard. Permet de dicter un mémo de n’importe quelle longueur sans rester appuyé.',
                 },
                 {
                   id: 'timer5s',
-                  title: 'Enregistrement auto 5 secondes',
-                  desc: 'Un seul clic déclenche 5s de note vocale puis mémorise automatiquement.',
+                  title: 'MINITEUR AUTO 5 SECONDES',
+                  desc: 'Un seul clic = 5 secondes de dictée vocale puis sauvegarde automatique du point.',
                 },
                 {
                   id: 'timer10s',
-                  title: 'Enregistrement auto 10 secondes',
-                  desc: 'Un seul clic déclenche 10s de note vocale pour des descriptions détaillées.',
+                  title: 'MINITEUR AUTO 10 SECONDES',
+                  desc: 'Un seul clic = 10 secondes d’enregistrement pour les descriptions détaillées.',
                 },
                 {
                   id: 'pushToTalk',
-                  title: 'Maintenir appuyé (Push-to-Talk)',
-                  desc: 'Enregistre tant que le bouton physique reste enfoncé.',
+                  title: 'MAINTENIR APPUYÉ (PUSH-TO-TALK)',
+                  desc: 'Enregistre tant que le bouton physique reste enfoncé dans votre main.',
                 },
               ].map((opt) => (
-                <div
+                <button
                   key={opt.id}
+                  type="button"
                   onClick={() => onUpdateConfig({ behavior: opt.id as any })}
-                  className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                  className={`p-3 border-2 text-left transition-all cursor-pointer shadow-[2px_2px_0px_#000000] ${
                     config.behavior === opt.id
-                      ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-600 dark:border-emerald-500 ring-2 ring-emerald-500/20'
-                      : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700'
+                      ? 'bg-[#172025] border-[#D1FF00] text-white ring-1 ring-[#D1FF00]'
+                      : 'bg-[#12181B] border-[#2E3E47] text-[#8E9CA3] hover:border-[#4A6B52]'
                   }`}
                 >
-                  <div className="font-bold text-slate-900 dark:text-slate-100 mb-1">
+                  <div className="font-black text-xs uppercase mb-1 text-white">
                     {opt.title}
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    {opt.desc}
-                  </p>
-                </div>
+                  <p className="text-[11px] text-[#8E9CA3] leading-snug">{opt.desc}</p>
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Section 4 : Retours haptiques et sonores en poche */}
-          <div className="bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-2xl p-4 space-y-4">
-            <h4 className="font-extrabold text-slate-900 dark:text-slate-100">
-              Retours sensoriels pour l'usage sans regarder l'écran
+          {/* RETOURS HAPTIQUES & SONORES EN POCHE */}
+          <div className="bg-[#12181B] border-2 border-[#4A6B52] p-4 shadow-[4px_4px_0px_#000000] space-y-3">
+            <h4 className="font-black text-white uppercase text-xs sm:text-sm tracking-wider border-b border-[#2E3E47] pb-2">
+              SIGNAUX SENSORIELS SANS REGARDER L'ÉCRAN
             </h4>
 
             <div className="space-y-3">
-              <label className="flex items-center justify-between cursor-pointer">
+              <label className="flex items-center justify-between cursor-pointer p-2.5 bg-[#172025] border border-[#2E3E47] hover:border-[#4A6B52]">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-emerald-600 dark:text-emerald-400">
+                  <div className="w-8 h-8 bg-[#12181B] border border-[#4A6B52] text-[#FF6B35] flex items-center justify-center">
                     <Volume2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-bold text-slate-900 dark:text-slate-100">
-                      Bips sonores de confirmation
+                    <div className="font-black text-xs text-white uppercase">
+                      Bips sonores tactiques
                     </div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-                      Bip aigu au début, bip grave à la fin de l'enregistrement
+                    <div className="text-[11px] text-[#8E9CA3]">
+                      Bip aigu au déclic, bip grave à la fin de la mémorisation
                     </div>
                   </div>
                 </div>
@@ -252,21 +438,21 @@ export const BluetoothConfigModal: React.FC<BluetoothConfigModalProps> = ({
                   type="checkbox"
                   checked={audioSettings.beepsEnabled}
                   onChange={(e) => onUpdateAudioSettings({ beepsEnabled: e.target.checked })}
-                  className="w-5 h-5 accent-emerald-600 rounded cursor-pointer"
+                  className="w-5 h-5 accent-[#FF6B35] cursor-pointer"
                 />
               </label>
 
-              <label className="flex items-center justify-between cursor-pointer">
+              <label className="flex items-center justify-between cursor-pointer p-2.5 bg-[#172025] border border-[#2E3E47] hover:border-[#4A6B52]">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-emerald-600 dark:text-emerald-400">
+                  <div className="w-8 h-8 bg-[#12181B] border border-[#4A6B52] text-[#FF6B35] flex items-center justify-center">
                     <Vibrate className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-bold text-slate-900 dark:text-slate-100">
+                    <div className="font-black text-xs text-white uppercase">
                       Retour par vibration haptique
                     </div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-                      Vibration courte lors du démarrage et de l'enregistrement du point
+                    <div className="text-[11px] text-[#8E9CA3]">
+                      Impulsion physique dans la poche au début et à la validation du point
                     </div>
                   </div>
                 </div>
@@ -274,22 +460,65 @@ export const BluetoothConfigModal: React.FC<BluetoothConfigModalProps> = ({
                   type="checkbox"
                   checked={audioSettings.vibrationEnabled}
                   onChange={(e) => onUpdateAudioSettings({ vibrationEnabled: e.target.checked })}
-                  className="w-5 h-5 accent-emerald-600 rounded cursor-pointer"
+                  className="w-5 h-5 accent-[#FF6B35] cursor-pointer"
                 />
               </label>
             </div>
           </div>
+
+          {/* WEb BLUETOOTH BLE AVANCÉ (OPTIONNEL) */}
+          <div className="bg-[#12181B] border border-[#2E3E47] p-3.5 space-y-2.5 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-[#8E9CA3] uppercase text-[11px]">
+                APPAIRAGE WEB BLUETOOTH GATT (FLIC, ITAG, BOUTON BLE)
+              </span>
+              {config.isConnectedBle ? (
+                <span className="text-[10px] bg-[#4A6B52] text-white px-2 py-0.5 border border-[#707B71] font-black">
+                  CONNECTÉ : {config.bleDeviceName || 'BLE DEVICE'}
+                </span>
+              ) : (
+                <span className="text-[10px] text-[#8E9CA3]">NON REQUIS POUR LES SHUTTERS VOLUME</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {config.isConnectedBle ? (
+                <button
+                  type="button"
+                  onClick={handleDisconnectBle}
+                  className="px-3 py-1.5 bg-[#172025] hover:bg-[#FF6B35] hover:text-black border border-[#FF6B35] text-xs font-bold uppercase transition-all shadow-[2px_2px_0px_#000000]"
+                >
+                  Déconnecter BLE
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleConnectBle}
+                  disabled={isScanningBle}
+                  className="px-3 py-1.5 bg-[#172025] hover:bg-[#4A6B52] border border-[#4A6B52] text-white text-xs font-bold uppercase transition-all shadow-[2px_2px_0px_#000000] flex items-center gap-1.5"
+                >
+                  <Bluetooth className="w-3.5 h-3.5 text-[#FF6B35]" />
+                  <span>{isScanningBle ? 'Scan BLE...' : 'Appairer bouton BLE dédié'}</span>
+                </button>
+              )}
+              {bleError && <span className="text-[11px] text-[#FF6B35] truncate">{bleError}</span>}
+            </div>
+          </div>
         </div>
 
-        {/* Pied de modal */}
-        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex justify-end">
+        {/* Pied de modal avec validation tactique */}
+        <div className="px-4 sm:px-6 py-3.5 border-t-2 border-[#4A6B52] bg-[#12181B] flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="text-[11px] text-[#8E9CA3] flex items-center gap-2">
+            <span className="w-2 h-2 bg-[#D1FF00]"></span>
+            <span>RÉCEPTEUR ACTIF : ÉCOUTE PERMANENTE DES TOUCHES VOL+ / VOL-</span>
+          </div>
+
           <button
             type="button"
             onClick={onClose}
             id="btn-close-modal-bottom"
-            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-md active:scale-95 transition-all"
+            className="w-full sm:w-auto px-6 py-2.5 bg-[#FF6B35] hover:bg-[#ff8252] text-black font-black uppercase text-xs sm:text-sm border-2 border-black shadow-[3px_3px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
           >
-            Terminer et enregistrer
+            VALIDER & FERMER
           </button>
         </div>
       </div>

@@ -1,83 +1,124 @@
 @import "tailwindcss";
 
-/* Leaflet High Visibility Overrides */
-.theme-light .leaflet-popup-content-wrapper {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  border-radius: 1rem !important;
-  border: 1px solid #cbd5e1 !important;
-  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1) !important;
+:root {
+  --bg-tactical: #12181B;
+  --panel-tactical: #172025;
+  --panel-tactical-hover: #1F2B32;
+  --border-tactical: #2E3E47;
+  --olive: #4A6B52;
+  --khaki: #707B71;
+  --orange-sec: #FF6B35;
+  --fluo: #D1FF00;
+  --text-primary: #CFCFCF;
+}
+
+body {
+  background-color: #12181B;
+  color: #CFCFCF;
+  font-family: 'JetBrains Mono', 'Share Tech Mono', monospace;
+}
+
+.font-tech {
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+}
+
+.font-tactical {
+  font-family: 'Chakra Petch', 'JetBrains Mono', sans-serif;
+}
+
+/* Effet grille HUD / réticule tactique */
+.bg-tactical-grid {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(74, 107, 82, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(74, 107, 82, 0.08) 1px, transparent 1px);
+}
+
+/* Boutons tactiques robustes à angles nets */
+.btn-tactical-solid {
+  background-color: #172025;
+  border: 2px solid #4A6B52;
+  color: #CFCFCF;
+  text-transform: uppercase;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.08em;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.12s ease;
+}
+
+.btn-tactical-solid:hover {
+  background-color: #4A6B52;
+  color: #FFFFFF;
+  border-color: #707B71;
+}
+
+.btn-tactical-solid:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.5);
+}
+
+.btn-tactical-orange {
+  background-color: #FF6B35;
+  border: 2px solid #FF8E61;
+  color: #12181B;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.08em;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.6);
+  transition: all 0.12s ease;
+}
+
+.btn-tactical-orange:hover {
+  background-color: #FF8252;
+  color: #000000;
+}
+
+.btn-tactical-orange:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.6);
+}
+
+/* Leaflet Tactical HUD Overrides */
+.leaflet-popup-content-wrapper {
+  background-color: #172025 !important;
+  color: #CFCFCF !important;
+  border-radius: 0px !important;
+  border: 2px solid #4A6B52 !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.9) !important;
   padding: 0 !important;
 }
 
-.theme-light .leaflet-popup-content {
-  margin: 14px 16px !important;
-  line-height: 1.5 !important;
-  color: #0f172a !important;
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+  line-height: 1.4 !important;
+  color: #CFCFCF !important;
+  font-family: 'JetBrains Mono', monospace !important;
 }
 
-.theme-light .leaflet-popup-tip {
-  background-color: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
+.leaflet-popup-tip {
+  background-color: #172025 !important;
+  border: 2px solid #4A6B52 !important;
 }
 
-.theme-light .leaflet-container {
-  font-family: inherit !important;
-  background: #e2e8f0 !important;
+.leaflet-container {
+  font-family: 'JetBrains Mono', monospace !important;
+  background: #12181B !important;
 }
 
-/* Dark Theme Overrides */
-.theme-dark .leaflet-popup-content-wrapper {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-radius: 1rem !important;
-  border: 1px solid #334155 !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.7) !important;
-  padding: 0 !important;
-}
-
-.theme-dark .leaflet-popup-content {
-  margin: 14px 16px !important;
-  line-height: 1.5 !important;
-}
-
-.theme-dark .leaflet-popup-tip {
-  background-color: #0f172a !important;
-  border: 1px solid #334155 !important;
-}
-
-.theme-dark .leaflet-container {
-  font-family: inherit !important;
-  background: #020617 !important;
-}
-
-/* Custom High Contrast Scrollbars */
-.theme-light ::-webkit-scrollbar {
+/* Scrollbars militaires */
+::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-.theme-light ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+::-webkit-scrollbar-track {
+  background: #12181B;
+  border-left: 1px solid #2E3E47;
 }
-.theme-light ::-webkit-scrollbar-thumb {
-  background: #94a3b8;
-  border-radius: 9999px;
+::-webkit-scrollbar-thumb {
+  background: #4A6B52;
+  border-radius: 0px;
 }
-.theme-light ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
-}
-
-.theme-dark ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.theme-dark ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
-}
-.theme-dark ::-webkit-scrollbar-thumb {
-  background: rgba(71, 85, 105, 0.8);
-  border-radius: 9999px;
-}
-.theme-dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 1);
+::-webkit-scrollbar-thumb:hover {
+  background: #707B71;
 }

@@ -9,6 +9,7 @@ import {
   WifiOff,
   HardDrive,
   Smartphone,
+  Bluetooth,
 } from 'lucide-react';
 import { BluetoothConfig, AudioFeedbackSettings, GpsCoordinates } from '../types';
 
@@ -31,6 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
   audioSettings,
   pointsCount,
   theme = 'light',
+  onOpenBluetoothModal,
   onOpenExportModal,
   onOpenQrCodeModal,
   onOpenAndroidModal,
@@ -55,52 +57,45 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   return (
-    <header
-      className={`border-b sticky top-0 z-30 px-4 py-3 sm:px-6 transition-colors shadow-sm ${
-        isLight
-          ? 'bg-white/95 border-slate-200 backdrop-blur-md text-slate-900'
-          : 'bg-slate-950/90 border-slate-800 backdrop-blur-md text-slate-100'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        {/* Titre et identité */}
+    <header className="border-b-2 border-[#4A6B52] sticky top-0 z-30 px-3 py-2.5 sm:px-5 bg-[#12181B] text-[#CFCFCF] font-mono shadow-[0_4px_0px_#000000]">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-2.5">
+        {/* Titre et identité tactique */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md font-black shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-[#172025] border-2 border-[#4A6B52] text-[#FF6B35] flex items-center justify-center shadow-[2px_2px_0px_#000000] font-black shrink-0">
               <MapPin className="w-5 h-5 fill-current" />
             </div>
             <div>
-              <h1
-                className={`font-black text-lg sm:text-xl tracking-tight ${
-                  isLight ? 'text-slate-900' : 'text-white'
-                }`}
-              >
-                GeoVoice
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="font-black text-lg tracking-wider text-white uppercase font-tech">
+                  GEOVOICE
+                </h1>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 bg-[#4A6B52] text-white border border-[#707B71] uppercase">
+                  TAC-SPEC
+                </span>
+              </div>
             </div>
           </div>
-
-
         </div>
 
-        {/* Indicateurs de statut et actions rapides */}
-        <div className="flex items-center flex-wrap gap-2 sm:gap-2.5">
+        {/* Indicateurs de statut et actions rapides tactiques */}
+        <div className="flex items-center flex-wrap gap-2">
           {/* Statut Réseau / Hors-Ligne & Stockage Local */}
           {!isOnline ? (
             <div
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-amber-400 bg-amber-50 text-amber-900 text-xs font-bold shadow-xs animate-pulse"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 border-2 border-[#FF6B35] bg-[#172025] text-[#FF6B35] text-xs font-bold shadow-[2px_2px_0px_#000000] animate-pulse"
               title="Fonctionnement autonome 100% hors-ligne. Relevés GPS et notes vocales sauvegardés en local."
             >
-              <WifiOff className="w-3.5 h-3.5 text-amber-600" />
-              <span>Hors-ligne (100% Actif)</span>
+              <WifiOff className="w-3.5 h-3.5" />
+              <span>HORS-LIGNE (AUTONOME)</span>
             </div>
           ) : (
             <div
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-medium shadow-xs"
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 border-2 border-[#4A6B52] bg-[#172025] text-[#8E9CA3] text-xs font-bold shadow-[2px_2px_0px_#000000]"
               title="Les relevés GPS et vocaux sont stockés localement sur votre appareil (IndexedDB)."
             >
-              <HardDrive className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Stockage 100% Local</span>
+              <HardDrive className="w-3.5 h-3.5 text-[#4A6B52]" />
+              <span className="text-[#CFCFCF]">LOCAL // OFFLINE READY</span>
             </div>
           )}
 
@@ -109,16 +104,12 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onToggleMute}
             id="btn-toggle-sound"
             type="button"
-            className={`p-2 rounded-xl border transition-colors shadow-xs ${
+            className={`w-9 h-9 border-2 flex items-center justify-center transition-all shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 ${
               audioSettings.beepsEnabled
-                ? isLight
-                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                  : 'bg-slate-900 border-slate-800 text-emerald-400 hover:bg-slate-800'
-                : isLight
-                ? 'bg-slate-100 border-slate-300 text-slate-400'
-                : 'bg-slate-900 border-slate-800 text-slate-500 hover:bg-slate-800'
+                ? 'bg-[#4A6B52] border-[#707B71] text-white'
+                : 'bg-[#172025] border-[#2E3E47] text-[#8E9CA3] hover:text-white'
             }`}
-            title={audioSettings.beepsEnabled ? 'Bips sonores activés' : 'Bips sonores coupés'}
+            title={audioSettings.beepsEnabled ? 'Bips sonores : ACTIVÉS' : 'Bips sonores : COUPÉS'}
           >
             {audioSettings.beepsEnabled ? (
               <Volume2 className="w-4 h-4" />
@@ -132,30 +123,43 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onToggleVibrate}
             id="btn-toggle-vibrate"
             type="button"
-            className={`p-2 rounded-xl border transition-colors shadow-xs ${
+            className={`w-9 h-9 border-2 flex items-center justify-center transition-all shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 ${
               audioSettings.vibrationEnabled
-                ? isLight
-                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                  : 'bg-slate-900 border-slate-800 text-emerald-400 hover:bg-slate-800'
-                : isLight
-                ? 'bg-slate-100 border-slate-300 text-slate-400'
-                : 'bg-slate-900 border-slate-800 text-slate-500 hover:bg-slate-800'
+                ? 'bg-[#4A6B52] border-[#707B71] text-white'
+                : 'bg-[#172025] border-[#2E3E47] text-[#8E9CA3] hover:text-white'
             }`}
-            title={audioSettings.vibrationEnabled ? 'Vibrations activées' : 'Vibrations coupées'}
+            title={audioSettings.vibrationEnabled ? 'Vibrations haptiques : ACTIVÉES' : 'Vibrations : COUPÉES'}
           >
             <Vibrate className="w-4 h-4" />
           </button>
 
-          {/* Bouton Export ZIP Direct */}
+          {/* Bouton Déclencheur Bluetooth & Volume */}
+          {onOpenBluetoothModal && (
+            <button
+              onClick={onOpenBluetoothModal}
+              id="btn-header-bluetooth"
+              type="button"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#172025] hover:bg-[#4A6B52] text-[#CFCFCF] hover:text-white border-2 border-[#4A6B52] text-xs font-bold uppercase shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+              title="Configurer les boutons Bluetooth & touches Volume (+/-) pour déclencher en poche"
+            >
+              <Bluetooth className="w-4 h-4 text-[#D1FF00]" />
+              <span className="hidden sm:inline">DÉCLENCHEUR</span>
+              <span className="text-[10px] font-black bg-[#4A6B52] text-white px-1.5 py-0.5 border border-[#707B71]">
+                VOL +/-
+              </span>
+            </button>
+          )}
+
+          {/* Bouton Export ZIP Direct (Orange Sécurité) */}
           <button
             onClick={onOpenExportModal}
             id="btn-header-export"
             type="button"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md active:scale-95 transition-all"
-            title="Exporter l'archive complète avec tous les enregistrements vocaux et formats GPS"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FF6B35] hover:bg-[#ff8252] text-black font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+            title="Exporter l'archive tactique complète (audio + GPX/KML/GeoJSON/CSV)"
           >
-            <Download className="w-4 h-4" />
-            <span>Export ZIP ({pointsCount})</span>
+            <Download className="w-4 h-4 stroke-[2.5]" />
+            <span>ARCHIVE ZIP ({pointsCount})</span>
           </button>
 
           {/* Bouton QR Code / Mobile */}
@@ -163,15 +167,11 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onOpenQrCodeModal}
             id="btn-header-qrcode"
             type="button"
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors shadow-xs ${
-              isLight
-                ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
-                : 'bg-slate-900 hover:bg-slate-800 border-slate-800 text-slate-200'
-            }`}
-            title="Afficher le QR code pour ouvrir l'application sur smartphone"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#172025] hover:bg-[#4A6B52] text-[#CFCFCF] hover:text-white border-2 border-[#4A6B52] text-xs font-bold uppercase shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+            title="Afficher le QR code d'appairage mobile"
           >
-            <QrCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span className="hidden sm:inline">QR Mobile</span>
+            <QrCode className="w-4 h-4 text-[#FF6B35]" />
+            <span className="hidden sm:inline">QR MOBILE</span>
           </button>
 
           {/* Bouton APK Android */}
@@ -179,18 +179,12 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onOpenAndroidModal}
             id="btn-header-apk"
             type="button"
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs ${
-              isLight
-                ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-800'
-                : 'bg-emerald-950/50 hover:bg-emerald-950 border-emerald-800 text-emerald-300'
-            }`}
-            title="Installer l'application sur Android ou télécharger le package APK"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#172025] hover:bg-[#4A6B52] text-[#CFCFCF] hover:text-white border-2 border-[#4A6B52] text-xs font-bold uppercase shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+            title="Installer l'application sur terminal Android ou package APK"
           >
-            <Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>APK Android</span>
+            <Smartphone className="w-4 h-4 text-[#D1FF00]" />
+            <span>APK ANDROID</span>
           </button>
-
-
         </div>
       </div>
     </header>

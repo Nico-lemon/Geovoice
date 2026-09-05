@@ -142,20 +142,20 @@ export const ExportModal: React.FC<ExportModalProps> = ({ points, onClose, onCle
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs font-mono">
+      <div className="bg-[#12181B] border-2 border-[#4A6B52] rounded-none max-w-2xl w-full max-h-[90vh] flex flex-col shadow-[6px_6px_0px_#000000] overflow-hidden text-[#CFCFCF]">
         {/* En-tête */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-[#4A6B52] bg-[#172025]">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
-              <Download className="w-6 h-6" />
+            <div className="p-2 bg-[#12181B] border border-[#4A6B52] text-[#FF6B35]">
+              <Download className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-slate-100">
-                Centre d'exportation de données
+              <h3 className="font-black text-sm sm:text-base text-white uppercase font-tech tracking-wider">
+                CENTRE D'EXPORT // MISSION TACTIQUE
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                {points.length} point{points.length > 1 ? 's' : ''} GPS • {audioCount} note{audioCount > 1 ? 's' : ''} vocale{audioCount > 1 ? 's' : ''}
+              <p className="text-[11px] text-[#8E9CA3] font-mono">
+                {points.length} BALISE{points.length > 1 ? 'S' : ''} GPS • {audioCount} NOTE{audioCount > 1 ? 'S' : ''} VOCALE{audioCount > 1 ? 'S' : ''}
               </p>
             </div>
           </div>
@@ -164,61 +164,61 @@ export const ExportModal: React.FC<ExportModalProps> = ({ points, onClose, onCle
             onClick={onClose}
             id="btn-close-export-modal"
             type="button"
-            className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 bg-[#12181B] border border-[#4A6B52] text-[#CFCFCF] hover:text-[#FF6B35] transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Message de succès */}
         {downloadSuccess && (
-          <div className="bg-emerald-600 text-white px-6 py-3 flex items-center gap-2 text-xs sm:text-sm font-bold animate-in slide-in-from-top duration-200">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Fichier "{downloadSuccess}" généré et téléchargé avec succès !</span>
+          <div className="bg-[#4A6B52] border-b border-[#D1FF00] text-white px-5 py-2.5 flex items-center gap-2 text-xs font-bold font-mono animate-in slide-in-from-top duration-200">
+            <CheckCircle2 className="w-4 h-4 text-[#D1FF00]" />
+            <span>FICHIER "{downloadSuccess}" EXPORTÉ AVEC SUCCÈS.</span>
           </div>
         )}
 
         {/* Corps avec défilement */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs sm:text-sm">
+        <div className="p-5 overflow-y-auto space-y-5 flex-1 text-xs">
           {/* Option phare : Archive ZIP complète avec tous les audios */}
-          <div className="bg-gradient-to-br from-emerald-50 via-white to-emerald-50/30 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-950 border-2 border-emerald-500/40 rounded-3xl p-5 space-y-4 shadow-sm">
+          <div className="bg-[#172025] border-2 border-[#4A6B52] p-4 space-y-3 shadow-[3px_3px_0px_#000000]">
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-xs">
-                    Recommandé
+                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 bg-[#FF6B35] text-black">
+                    RECOMMANDE
                   </span>
-                  <h4 className="font-black text-base text-slate-900 dark:text-slate-100">
-                    Archive Complète Packagée (ZIP)
+                  <h4 className="font-black text-sm text-white uppercase font-tech tracking-wider">
+                    PACKAGE ARCHIVE COMPLET (ZIP)
                   </h4>
                 </div>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                  Contient tous les fichiers <strong>GPX, KML, GeoJSON, CSV</strong> ainsi que <strong>tous les enregistrements vocaux (.webm)</strong> organisés dans un sous-dossier et une <strong>carte interactive autonome</strong>.
+                <p className="text-[#CFCFCF] leading-relaxed font-sans text-xs">
+                  Contient l'ensemble des fichiers <strong>GPX, KML, GeoJSON, CSV</strong> ainsi que <strong>tous les enregistrements vocaux (.webm)</strong> et le visualiseur carte HTML autonome pour consultation hors-ligne.
                 </p>
               </div>
 
-              <div className="p-3 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-2xl shrink-0">
-                <FileArchive className="w-7 h-7" />
+              <div className="p-2.5 bg-[#12181B] border border-[#4A6B52] text-[#FF6B35] shrink-0">
+                <FileArchive className="w-6 h-6" />
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-emerald-200 dark:border-emerald-500/20">
+            <div className="flex flex-wrap items-center gap-2.5 pt-2 border-t border-[#2E3E47]">
               <button
                 onClick={handleExportZip}
                 disabled={isExportingZip || points.length === 0}
                 id="btn-export-full-zip"
                 type="button"
-                className="flex-1 sm:flex-none px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all disabled:opacity-50"
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-[#4A6B52] hover:bg-[#3d5843] border-2 border-[#707B71] text-white font-mono font-black text-xs uppercase flex items-center justify-center gap-2 shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50"
               >
                 {isExportingZip ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Création du ZIP en cours...</span>
+                    <Loader2 className="w-4 h-4 animate-spin text-[#D1FF00]" />
+                    <span>COMPRESSION EN COURS...</span>
                   </>
                 ) : (
                   <>
-                    <Download className="w-4 h-4" />
-                    <span>Télécharger l'Archive Complète (.zip)</span>
+                    <Download className="w-4 h-4 text-[#FF6B35]" />
+                    <span>TÉLÉCHARGER ARCHIVE COMPLÈTE (.ZIP)</span>
                   </>
                 )}
               </button>
@@ -228,30 +228,30 @@ export const ExportModal: React.FC<ExportModalProps> = ({ points, onClose, onCle
                 disabled={isExportingHtml || points.length === 0}
                 id="btn-export-html-map"
                 type="button"
-                className="px-4 py-3 rounded-2xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold border border-slate-300 dark:border-slate-700 text-xs sm:text-sm flex items-center gap-2 shadow-xs transition-colors"
+                className="px-3.5 py-2.5 bg-[#12181B] hover:bg-[#2E3E47] border border-[#4A6B52] text-white font-mono font-bold text-xs uppercase flex items-center gap-2 shadow-[2px_2px_0px_#000000] transition-colors"
                 title="Générer un fichier HTML autonome avec carte et audios embarqués"
               >
-                {isExportingHtml ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
-                <span>Carte Web Autonome (.html)</span>
+                {isExportingHtml ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4 text-[#D1FF00]" />}
+                <span>CARTE WEB AUTONOME (.HTML)</span>
               </button>
             </div>
           </div>
 
           {/* Grille des formats standards */}
-          <div className="space-y-3">
-            <h4 className="font-extrabold text-slate-900 dark:text-slate-100">
-              Exports individuels par format
+          <div className="space-y-2.5">
+            <h4 className="font-black text-xs uppercase text-[#CFCFCF] tracking-wider">
+              // EXPORTS STANDARDS PAR FORMAT
             </h4>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {/* GPX */}
-              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+              <div className="bg-[#172025] border border-[#2E3E47] p-3 flex items-center justify-between gap-2 shadow-[2px_2px_0px_#000000]">
                 <div>
-                  <div className="font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Map className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    <span>Format GPX</span>
+                  <div className="font-bold text-white flex items-center gap-1.5 uppercase">
+                    <Map className="w-3.5 h-3.5 text-[#FF6B35]" />
+                    <span>FORMAT GPX</span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                  <p className="text-[10px] text-[#8E9CA3] mt-0.5">
                     Garmin, Strava, OsmAnd, Komoot, QGIS
                   </p>
                 </div>
@@ -261,21 +261,21 @@ export const ExportModal: React.FC<ExportModalProps> = ({ points, onClose, onCle
                   disabled={points.length === 0}
                   id="btn-export-gpx"
                   type="button"
-                  className="px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-xl font-bold border border-slate-300 dark:border-slate-700 transition-colors shadow-xs"
+                  className="px-3 py-1.5 bg-[#12181B] hover:bg-[#4A6B52] text-white border border-[#4A6B52] font-mono font-black text-xs uppercase transition-colors"
                 >
                   .GPX
                 </button>
               </div>
 
               {/* GeoJSON */}
-              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+              <div className="bg-[#172025] border border-[#2E3E47] p-3 flex items-center justify-between gap-2 shadow-[2px_2px_0px_#000000]">
                 <div>
-                  <div className="font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <FileCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <span>Format GeoJSON</span>
+                  <div className="font-bold text-white flex items-center gap-1.5 uppercase">
+                    <FileCode className="w-3.5 h-3.5 text-[#D1FF00]" />
+                    <span>FORMAT GEOJSON</span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                    Web SIG, Leaflet, Mapbox, Python, QGIS
+                  <p className="text-[10px] text-[#8E9CA3] mt-0.5">
+                    Web SIG, Leaflet, Mapbox, QGIS
                   </p>
                 </div>
 
@@ -284,21 +284,21 @@ export const ExportModal: React.FC<ExportModalProps> = ({ points, onClose, onCle
                   disabled={points.length === 0}
                   id="btn-export-geojson"
                   type="button"
-                  className="px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-xl font-bold border border-slate-300 dark:border-slate-700 transition-colors shadow-xs"
+                  className="px-3 py-1.5 bg-[#12181B] hover:bg-[#4A6B52] text-white border border-[#4A6B52] font-mono font-black text-xs uppercase transition-colors"
                 >
-                  .GeoJSON
+                  .GEOJSON
                 </button>
               </div>
 
               {/* KML */}
-              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+              <div className="bg-[#172025] border border-[#2E3E47] p-3 flex items-center justify-between gap-2 shadow-[2px_2px_0px_#000000]">
                 <div>
-                  <div className="font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-                    <span>Format KML</span>
+                  <div className="font-bold text-white flex items-center gap-1.5 uppercase">
+                    <Globe className="w-3.5 h-3.5 text-[#FF6B35]" />
+                    <span>FORMAT KML</span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                    Google Earth, Google My Maps
+                  <p className="text-[10px] text-[#8E9CA3] mt-0.5">
+                    Google Earth, My Maps, SIG
                   </p>
                 </div>
 
@@ -307,21 +307,21 @@ export const ExportModal: React.FC<ExportModalProps> = ({ points, onClose, onCle
                   disabled={points.length === 0}
                   id="btn-export-kml"
                   type="button"
-                  className="px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-xl font-bold border border-slate-300 dark:border-slate-700 transition-colors shadow-xs"
+                  className="px-3 py-1.5 bg-[#12181B] hover:bg-[#4A6B52] text-white border border-[#4A6B52] font-mono font-black text-xs uppercase transition-colors"
                 >
                   .KML
                 </button>
               </div>
 
               {/* CSV / Excel */}
-              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+              <div className="bg-[#172025] border border-[#2E3E47] p-3 flex items-center justify-between gap-2 shadow-[2px_2px_0px_#000000]">
                 <div>
-                  <div className="font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Table className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    <span>Tableur CSV / Excel</span>
+                  <div className="font-bold text-white flex items-center gap-1.5 uppercase">
+                    <Table className="w-3.5 h-3.5 text-[#D1FF00]" />
+                    <span>TABLEUR CSV</span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                    Excel, Google Sheets, LibreOffice (UTF-8)
+                  <p className="text-[10px] text-[#8E9CA3] mt-0.5">
+                    Excel, Calc, Google Sheets
                   </p>
                 </div>
 
@@ -330,7 +330,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ points, onClose, onCle
                   disabled={points.length === 0}
                   id="btn-export-csv"
                   type="button"
-                  className="px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-xl font-bold border border-slate-300 dark:border-slate-700 transition-colors shadow-xs"
+                  className="px-3 py-1.5 bg-[#12181B] hover:bg-[#4A6B52] text-white border border-[#4A6B52] font-mono font-black text-xs uppercase transition-colors"
                 >
                   .CSV
                 </button>
@@ -339,13 +339,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({ points, onClose, onCle
           </div>
 
           {/* Section Danger : Nettoyage */}
-          <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div className="pt-3 border-t border-[#2E3E47] flex items-center justify-between">
             <div>
-              <div className="font-extrabold text-rose-700 dark:text-rose-400">
-                Effacer les relevés locaux
+              <div className="font-black text-[#FF6B35] uppercase">
+                PURGER DONNÉES LOCALES
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Pensez à exporter vos données avant de réinitialiser la session.
+              <p className="text-[10px] text-[#8E9CA3]">
+                Supprime définitivement la mémoire IndexedDB de la session.
               </p>
             </div>
 
@@ -359,10 +359,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({ points, onClose, onCle
               disabled={points.length === 0}
               id="btn-clear-all-points"
               type="button"
-              className="px-4 py-2 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-800 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-50"
+              className="px-3.5 py-2 bg-[#12181B] hover:bg-[#FF6B35] text-[#FF6B35] hover:text-black border-2 border-[#FF6B35] font-mono font-black text-xs uppercase flex items-center gap-1.5 transition-colors disabled:opacity-50 shadow-[2px_2px_0px_#000000]"
             >
-              <Trash2 className="w-4 h-4" />
-              <span>Tout effacer</span>
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>PURGER LA SESSION</span>
             </button>
           </div>
         </div>

@@ -23,11 +23,16 @@ export interface GpsPoint {
 
 export type TriggerMode = 'media' | 'ble' | 'keyboard' | 'all';
 export type RecordingBehavior = 'pushToTalk' | 'toggle' | 'timer5s' | 'timer10s';
+export type VolumeTriggerMode = 'both' | 'upOnly' | 'downOnly';
 
 export interface BluetoothConfig {
   mode: TriggerMode;
   behavior: RecordingBehavior;
   customKeyCodes: string[];
+  volumeTriggerMode?: VolumeTriggerMode;
+  preventVolumeAction?: boolean;
+  lastVolumeTriggerTime?: number;
+  lastVolumeDirection?: 'up' | 'down';
   bleDeviceName?: string;
   bleDeviceId?: string;
   bleServiceUuid?: string;

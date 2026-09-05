@@ -89,7 +89,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBlob, duration = 
 
   if (compact) {
     return (
-      <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 w-full shadow-xs">
+      <div className="flex items-center gap-2 bg-[#12181B] border border-[#2E3E47] px-2.5 py-1.5 w-full shadow-[2px_2px_0px_#000000] font-mono">
         {audioUrl && (
           <audio
             ref={audioRef}
@@ -102,9 +102,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBlob, duration = 
           onClick={togglePlay}
           id="btn-compact-play"
           type="button"
-          className="p-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shrink-0 shadow-xs"
+          className="p-1.5 bg-[#FF6B35] hover:bg-[#ff8252] text-black transition-colors shrink-0 shadow-xs active:translate-x-0.5 active:translate-y-0.5"
         >
-          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
+          {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
         </button>
         <input
           type="range"
@@ -113,9 +113,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBlob, duration = 
           step="0.05"
           value={currentTime}
           onChange={handleSeek}
-          className="w-full h-2 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+          className="w-full h-1.5 bg-[#172025] rounded-none appearance-none cursor-pointer accent-[#FF6B35]"
         />
-        <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 shrink-0">
+        <span className="text-[11px] font-mono font-bold text-[#FF6B35] shrink-0">
           {formatTime(currentTime)} / {formatTime(duration)}
         </span>
       </div>
@@ -123,7 +123,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBlob, duration = 
   }
 
   return (
-    <div className="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-3.5 shadow-sm space-y-2.5">
+    <div className="bg-[#12181B] border-2 border-[#4A6B52] p-3 shadow-[3px_3px_0px_#000000] space-y-2 font-mono">
       {audioUrl && (
         <audio
           ref={audioRef}
@@ -133,8 +133,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBlob, duration = 
         />
       )}
 
-      {/* Visualiseur de forme d'onde simulée */}
-      <div className="flex items-center gap-1 h-8 px-1 justify-between">
+      {/* Visualiseur de forme d'onde radio tactique */}
+      <div className="flex items-center gap-1 h-7 px-1 justify-between bg-[#172025] border border-[#2E3E47] p-1">
         {Array.from({ length: 32 }).map((_, i) => {
           const progress = currentTime / (effectiveDuration || 1);
           const isPassed = i / 32 <= progress;
@@ -143,25 +143,25 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBlob, duration = 
             <div
               key={i}
               style={{ height: `${Math.max(15, Math.min(100, heightPercent))}%` }}
-              className={`w-1 rounded-full transition-all duration-100 ${
-                isPassed ? 'bg-emerald-600 dark:bg-emerald-400' : 'bg-slate-300 dark:bg-slate-700'
+              className={`w-1 rounded-none transition-all duration-100 ${
+                isPassed ? 'bg-[#FF6B35]' : 'bg-[#2E3E47]'
               }`}
             />
           );
         })}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         <button
           onClick={togglePlay}
           id="btn-play-audio"
           type="button"
-          className="p-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-transform active:scale-95 shadow-md shrink-0"
+          className="p-2 bg-[#FF6B35] hover:bg-[#ff8252] text-black font-black transition-transform active:scale-95 shadow shrink-0"
         >
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
         </button>
 
-        <div className="flex-1 space-y-1">
+        <div className="flex-1 space-y-0.5">
           <input
             type="range"
             min="0"
@@ -169,10 +169,10 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBlob, duration = 
             step="0.05"
             value={currentTime}
             onChange={handleSeek}
-            className="w-full h-2 bg-slate-300 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+            className="w-full h-2 bg-[#172025] rounded-none appearance-none cursor-pointer accent-[#FF6B35]"
           />
-          <div className="flex justify-between text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
-            <span>{formatTime(currentTime)}</span>
+          <div className="flex justify-between text-[11px] font-mono text-[#8E9CA3]">
+            <span className="text-[#FF6B35] font-bold">{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
         </div>
@@ -181,7 +181,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBlob, duration = 
           onClick={toggleSpeed}
           id="btn-audio-speed"
           type="button"
-          className="text-xs font-mono font-bold px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg border border-slate-300 dark:border-slate-700 transition-colors shadow-xs"
+          className="text-xs font-mono font-bold px-2 py-1 bg-[#172025] hover:bg-[#2E3E47] text-[#FF6B35] border border-[#4A6B52] transition-colors shadow-xs"
           title="Vitesse de lecture"
         >
           {playbackRate}x
