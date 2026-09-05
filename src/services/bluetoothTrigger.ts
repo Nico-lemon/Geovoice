@@ -23,14 +23,39 @@ class BluetoothTriggerService {
       'VolumeMute',
       'Space',
       'Enter',
+      'NumpadEnter',
       'MediaPlayPause',
       'MediaTrackNext',
       'MediaTrackPrevious',
       'MediaStop',
+      'MediaSelect',
+      'HeadsetHook',
+      'Camera',
+      'Snapshot',
       'ArrowUp',
       'ArrowDown',
+      'ArrowLeft',
+      'ArrowRight',
       'PageUp',
-      'PageDown'
+      'PageDown',
+      'Home',
+      'End',
+      'F1',
+      'F2',
+      'F3',
+      'F4',
+      'F5',
+      'F6',
+      'F7',
+      'F8',
+      'F9',
+      'F10',
+      'F11',
+      'F12',
+      'KeyA',
+      'KeyB',
+      'KeyX',
+      'KeyY'
     ],
     volumeTriggerMode: 'both',
     preventVolumeAction: true,
@@ -46,10 +71,14 @@ class BluetoothTriggerService {
   private silentAudio: HTMLAudioElement | null = null;
   private lastTriggerTime = 0;
   private lastTriggerInfo: TriggerEventInfo | null = null;
+  private gamepadPollInterval: number | null = null;
+  private prevGamepadButtons: boolean[] = [];
 
   constructor() {
     this.initKeyboardListener();
     this.initMediaSession();
+    this.initGamepadListener();
+    this.initUserInteractionArming();
   }
 
   public setConfig(newConfig: Partial<BluetoothConfig>) {
@@ -176,6 +205,62 @@ class BluetoothTriggerService {
         console.warn('MediaSession init notice:', e);
       }
     }
+  }
+
+  // Écoute des télécommandes se présentant comme une manette / contrôleur HID (ex: VR remote, shutter gamepad)
+  private initGamepadListener() {
+    if (typeof window === 'undefined') return;
+
+    window.addEventListener('gamepadconnected', () => {
+      this.startGamepadPolling();
+    });
+
+    // Démarrer la surveillance si une manette est déjà reconnue
+    this.startGamepadPolling();
+  }
+
+  private startGamepadPolling() {
+    if (this.gamepadPollInterval || typeof navigator === 'undefined' || !navigator.getGamepads) return;
+
+    this.gamepadPollInterval = window.setInterval(() => {
+      try {
+        const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+        for (const gp of gamepads) {
+          if (!gp || !gp.buttons) continue;
+          for (let i = 0; i < gp.buttons.length; i++) {
+            const btn = gp.buttons[i];
+            const isPressed = typeof btn === 'object' ? btn.pressed : btn > 0.5;
+            const wasPressed = this.prevGamepadButtons[i] || false;
+
+            if (isPressed && !wasPressed) {
+              this.dispatchTrigger(`Bouton Télécommande (${gp.id || 'Bouton ' + i})`, {
+                isVolume: false,
+                rawKey: `GAMEPAD_${i}`
+              });
+            }
+            this.prevGamepadButtons[i] = isPressed;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }, 50);
+  }
+
+  // Active automatiquement le flux audio d'arrière-plan dès que l'utilisateur touche l'écran
+  private initUserInteractionArming() {
+    if (typeof window === 'undefined') return;
+
+    const armAudio = () => {
+      this.activateBackgroundAudio();
+      window.removeEventListener('pointerdown', armAudio);
+      window.removeEventListener('touchstart', armAudio);
+      window.removeEventListener('keydown', armAudio);
+    };
+
+    window.addEventListener('pointerdown', armAudio, { once: true, passive: true });
+    window.addEventListener('touchstart', armAudio, { once: true, passive: true });
+    window.addEventListener('keydown', armAudio, { once: true, passive: true });
   }
 
   /**
@@ -310,6 +395,18 @@ class BluetoothTriggerService {
           isVolume: false,
           rawKey: e.code || e.key
         });
+        return;
+      }
+
+      // 3. Fallback universel : si mode 'all' et touche non-modificatrice
+      if (this.config.mode === 'all') {
+        const ignoredKeys = ['Control', 'Shift', 'Alt', 'Meta', 'CapsLock'];
+        if (!ignoredKeys.includes(e.key)) {
+          this.dispatchTrigger(`Bouton Clavier / Shutter (${e.code || e.key || 'Touche'})`, {
+            isVolume: false,
+            rawKey: e.code || e.key || String(e.keyCode)
+          });
+        }
       }
     };
 
